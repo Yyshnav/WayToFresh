@@ -58,8 +58,14 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           currentIndex: widget.selectedIndex,
-          selectedItemColor: widget.indicatorColor ?? Colors.black,
-          unselectedItemColor: Colors.grey,
+          selectedItemColor:
+              widget.indicatorColor ?? Theme.of(context).primaryColor,
+          unselectedItemColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white70
+              : Colors.grey,
+          backgroundColor:
+              Theme.of(context).bottomNavigationBarTheme.backgroundColor ??
+              Theme.of(context).cardColor,
           showUnselectedLabels: true,
           onTap: (index) {
             widget.onItemTap(index);
@@ -84,12 +90,23 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
                     margin: const EdgeInsets.only(bottom: 4),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? (widget.indicatorColor ?? Colors.black)
+                          ? (widget.indicatorColor ??
+                                Theme.of(context).primaryColor)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  Image.asset(item.icon, height: 24, width: 24),
+                  Image.asset(
+                    item.icon,
+                    height: 24,
+                    width: 24,
+                    color: isSelected
+                        ? (widget.indicatorColor ??
+                              Theme.of(context).primaryColor)
+                        : (Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white70
+                              : Colors.grey),
+                  ),
                 ],
               ),
               label: item.label,

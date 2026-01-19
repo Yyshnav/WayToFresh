@@ -7,10 +7,8 @@ import '../../../widgets/custom_image_view.dart';
 class GroceryCategoryItemWidget extends StatelessWidget {
   final GroceryCategoryItemModel category;
 
-  GroceryCategoryItemWidget({
-    Key? key,
-    required this.category,
-  }) : super(key: key);
+  GroceryCategoryItemWidget({Key? key, required this.category})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +36,8 @@ class GroceryCategoryItemWidget extends StatelessWidget {
           Text(
             category.title.value,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyleHelper.instance.label10RegularPoppins,
           ),
         ],

@@ -1,209 +1,87 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/snackbar/snackbar.dart';
-import 'package:waytofresh/core/app_expote.dart';
+import 'package:get/get.dart';
+import '../models/categoryitemmodel.dart';
+import '../models/category_collection_model.dart';
 import 'package:waytofresh/core/utils/image_constants.dart';
-import 'package:waytofresh/presentation/category_screen/models/categoryitemmodel.dart';
-import 'package:waytofresh/presentation/category_screen/models/categorymodel.dart';
 
 class CategoryController extends GetxController {
-  late TextEditingController searchController;
+  TextEditingController searchController = TextEditingController();
 
-  final categoryModel = Rx<CategoryModel?>(null);
-  final isLoading = false.obs;
-  final searchQuery = ''.obs;
+  RxList<CategoryItemModel> groceryKitchenItems = <CategoryItemModel>[].obs;
+  RxList<CategoryItemModel> snacksDrinksItems = <CategoryItemModel>[].obs;
+  RxList<CategoryItemModel> householdEssentialsItems =
+      <CategoryItemModel>[].obs;
 
-  // Observable lists for different categories
-  final groceryKitchenItems = <CategoryItemModel>[].obs;
-  final snacksDrinksItems = <CategoryItemModel>[].obs;
-  final householdEssentialsItems = <CategoryItemModel>[].obs;
+  RxList<CategoryCollectionModel> collections = <CategoryCollectionModel>[
+    CategoryCollectionModel(
+      title: "Fresh Fruits\n& Vegetable",
+      imagePath: ImageConstant.imgImage19, // Broccoli/Veg
+      color: Color(0xFFD4F8C7), // Light Green
+      price: 7.00,
+      itemCount: 245,
+    ),
+    CategoryCollectionModel(
+      title: "Bakery & Snacks",
+      imagePath: ImageConstant.biscut3,
+      color: Color(0xFFFFF2C2), // Light Yellow
+      price: 6.00,
+      itemCount: 150,
+    ),
+    CategoryCollectionModel(
+      title: "Meat & Fish",
+      imagePath: ImageConstant.imgImage53, // Meat fallback
+      color: Color(0xFFFFCCBC), // Light Orange/Peach
+      price: 8.00,
+      itemCount: 85,
+    ),
+    CategoryCollectionModel(
+      title: "Egg Chicken\nRed",
+      imagePath: ImageConstant.imgImage54, // Egg fallback
+      color: Color(0xFFFFE0D6), // Very light peach
+      price: 6.00,
+      itemCount: 40,
+    ),
+    CategoryCollectionModel(
+      title: "Cooking Oil\n& Ghee",
+      imagePath: ImageConstant.imgImage18, // Oil fallback
+      color: Color(0xFFE2F8C9), // Another Green variant
+      price: 6.00,
+      itemCount: 120,
+    ),
+    CategoryCollectionModel(
+      title: "Apple & Grape\nJuice",
+      imagePath: ImageConstant.drink1,
+      color: Color(0xFFFFCDD2), // Light Pink/Red
+      price: 6.00,
+      itemCount: 65,
+    ),
+  ].obs;
 
   @override
   void onInit() {
     super.onInit();
-    searchController = TextEditingController();
-    categoryModel.value = CategoryModel();
-    initializeCategoryItems();
+    // Data already loaded
   }
 
-  @override
-  void onClose() {
-    searchController.dispose();
-    super.onClose();
-  }
-
-  void initializeCategoryItems() {
-    // Initialize Grocery & Kitchen items
-    groceryKitchenItems.assignAll([
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage4650x50.obs,
-        title: "Vegetables &\nFruits".obs,
-        imageHeight: 84.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 60.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage4650x60.obs,
-        title: "Atta, Dal &\nRice".obs,
-        imageHeight: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 60.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage4650x50.obs,
-        title: "Oil, Ghee &\nMasala".obs,
-        imageHeight: 60.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 60.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage4630x60.obs,
-        title: "Diary Milk &\nBread".obs,
-        imageHeight: 30.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 60.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage4650x50.obs,
-        title: "Biscuits &\nBakery".obs,
-        imageHeight: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage21.obs,
-        title: "Dry Fruits &\nCereals".obs,
-        imageHeight: 60.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 60.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage22.obs,
-        title: "Kitchen &\nAppliances".obs,
-        imageHeight: 42.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 60.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage23.obs,
-        title: "Tea &\nCoffees".obs,
-        imageHeight: 60.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 60.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage24.obs,
-        title: "Ice Creams &\nmuch more".obs,
-        imageHeight: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage25.obs,
-        title: "Noodles &\nPacket Food".obs,
-        imageHeight: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-    ]);
-
-    // Initialize Snacks & Drinks items
-    snacksDrinksItems.assignAll([
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage26.obs,
-        title: "Chips &\nNamkeens".obs,
-        imageHeight: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage27.obs,
-        title: "Sweets &\nChocalates".obs,
-        imageHeight: 34.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 60.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage28.obs,
-        title: "Drinks &\nJuices".obs,
-        imageHeight: 36.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 70.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage29.obs,
-        title: "Sauces &\nSpreads".obs,
-        imageHeight: 42.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage30.obs,
-        title: "Beauty &\nCosmetics".obs,
-        imageHeight: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-    ]);
-
-    // Initialize Household Essentials items
-    householdEssentialsItems.assignAll([
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage36.obs,
-        title: "Cleaning".obs,
-        imageHeight: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage37.obs,
-        title: "Laundry".obs,
-        imageHeight: 52.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage38.obs,
-        title: "Kitchen Care".obs,
-        imageHeight: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage39.obs,
-        title: "Home Care".obs,
-        imageHeight: 40.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-      CategoryItemModel(
-        imagePath: ImageConstant.imgImage40.obs,
-        title: "Personal Care".obs,
-        imageHeight: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-        imageWidth: 50.0.obs, // Modified: Changed from RxInt to Rx<double>
-      ),
-    ]);
-  }
-
-  void onSearchChanged(String value) {
-    searchQuery.value = value;
-    // Implement search functionality if needed
-  }
-
-  void onVoiceSearchPressed() {
-    // Implement voice search functionality
-    Get.snackbar(
-      "Voice Search",
-      "Voice search feature will be implemented",
-      snackPosition: SnackPosition.BOTTOM,
-    );
-  }
+  // Removed _loadDummyData as it is now inline
 
   void onLocationPressed() {
-    // Handle location selection
-    Get.snackbar(
-      "Location",
-      "Location selection feature will be implemented",
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    // Handle location press
   }
 
   void onProfilePressed() {
-    // Handle profile navigation
-    Get.snackbar(
-      "Profile",
-      "Profile feature will be implemented",
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    // Handle profile press
+  }
+
+  void onSearchChanged(String value) {
+    // Handle search text change
+  }
+
+  void onVoiceSearchPressed() {
+    // Handle voice search
   }
 
   void onCategoryItemPressed(CategoryItemModel item) {
-    // Handle category item selection
-    Get.snackbar(
-      "Category Selected",
-      "Selected: ${item.title.value}",
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    // Handle category item press
   }
 }

@@ -38,6 +38,13 @@ dependencies:
   cached_network_image: ^3.4.1
   get: ^4.7.2
   google_fonts: ^6.3.2
+  redacted: ^1.0.13
+  shimmer: ^3.0.0
+  google_maps_flutter: ^2.5.0
+  geolocator: ^10.1.0
+  permission_handler: ^11.0.1
+  lottie: ^3.3.2
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

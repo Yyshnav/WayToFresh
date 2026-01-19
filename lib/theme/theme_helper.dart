@@ -11,13 +11,17 @@ class ThemeHelper {
   var _appTheme = "lightCode";
 
   // A map of custom color themes supported by the app
+  // A map of custom color themes supported by the app
   Map<String, LightCodeColors> _supportedCustomColor = {
     'lightCode': LightCodeColors(),
+    'darkCode':
+        LightCodeColors(), // Using same structure for now, can be specialized
   };
 
   // A map of color schemes supported by the app
   Map<String, ColorScheme> _supportedColorScheme = {
     'lightCode': ColorSchemes.lightCodeColorScheme,
+    'darkCode': ColorSchemes.darkCodeColorScheme,
   };
 
   /// Returns the lightCode colors for the current theme.
@@ -32,6 +36,15 @@ class ThemeHelper {
     return ThemeData(
       visualDensity: VisualDensity.standard,
       colorScheme: colorScheme,
+      scaffoldBackgroundColor: colorScheme.background,
+      unselectedWidgetColor: colorScheme.onSurface.withOpacity(0.6),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: colorScheme.surface,
+        unselectedItemColor: colorScheme.onSurface.withOpacity(0.6),
+        selectedItemColor: colorScheme.primary,
+        elevation: 0,
+        type: BottomNavigationBarType.fixed,
+      ),
     );
   }
 
@@ -43,7 +56,27 @@ class ThemeHelper {
 }
 
 class ColorSchemes {
-  static final lightCodeColorScheme = ColorScheme.light();
+  static final lightCodeColorScheme = ColorScheme.light(
+    primary: Color(0xFF07575B),
+    onPrimary: Colors.white,
+    secondary: Color(0xFF26AF34),
+    onSecondary: Colors.white,
+    background: Color(0xFFF5F5F5),
+    onBackground: Colors.black,
+    surface: Colors.white,
+    onSurface: Colors.black,
+  );
+
+  static final darkCodeColorScheme = ColorScheme.dark(
+    primary: Color(0xFF0A8F94), // Lighter Teal for dark mode
+    onPrimary: Colors.black,
+    secondary: Color(0xFF34D44A), // Lighter Green
+    onSecondary: Colors.black,
+    background: Color(0xFF121212),
+    onBackground: Colors.white,
+    surface: Color(0xFF1E1E1E),
+    onSurface: Colors.white,
+  );
 }
 
 class LightCodeColors {
@@ -58,6 +91,8 @@ class LightCodeColors {
   Color get teal_50 => Color(0xFFD9EAEA);
   Color get amber_A200 => Color(0xFFF7CB45);
   Color get teal_50_01 => Color(0xFFD9EBEB);
+  Color get teal_100 => Color(0xFFB2DFDB); // Added for ripple
+  Color get teal_200 => Color(0xFF80CBC4); // Added for ripple
 
   // Additional Colors
   Color get transparentCustom => Colors.transparent;

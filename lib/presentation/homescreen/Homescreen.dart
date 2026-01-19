@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:waytofresh/core/utils/image_constants.dart';
-import 'package:waytofresh/presentation/category_screen/categoryscreen.dart';
+import 'package:waytofresh/presentation/category_screen/cat.dart';
 import 'package:waytofresh/presentation/homescreen/homecontroller.dart';
+import 'package:waytofresh/presentation/category_screen/categoryscreen.dart'
+    as grid;
 import 'package:waytofresh/routes/app_routes.dart';
 import 'package:waytofresh/widgets/custom_bottom_bar.dart';
 import './home_initial_page.dart';
@@ -44,6 +46,9 @@ class HomeScreen extends GetWidget<HomeController> {
                 left: 0,
                 right: 0,
                 child: CustomBottomBar(
+                  key: ValueKey(
+                    selectedIndex.value,
+                  ), // Force rebuild to update colors
                   bottomBarItems: [
                     CustomBottomBarItem(
                       icon: ImageConstant.imgHome1,
@@ -74,7 +79,7 @@ class HomeScreen extends GetWidget<HomeController> {
                   scrollController: selectedIndex.value == 0
                       ? _homeScrollController
                       : _categoryScrollController,
-                  indicatorColor: Colors.black,
+                  indicatorColor: Theme.of(context).primaryColor,
                 ),
               );
             }),
@@ -101,7 +106,7 @@ class HomeScreen extends GetWidget<HomeController> {
       case 0:
         return HomeInitialPage(scrollController: _homeScrollController);
       case 1:
-        return CategoryScreen(scrollController: _categoryScrollController);
+        return grid.CategoryScreen(scrollController: _categoryScrollController);
       default:
         return HomeInitialPage(scrollController: _homeScrollController);
     }

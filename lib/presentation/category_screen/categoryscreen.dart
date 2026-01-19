@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:waytofresh/Widgets/custom_image_view.dart';
 import 'package:waytofresh/core/app_expote.dart';
@@ -19,325 +18,351 @@ class CategoryScreen extends StatefulWidget {
 
 class _CategoryScreenState extends State<CategoryScreen> {
   final CategoryController controller = Get.put(CategoryController());
-  bool _isHeaderVisible = true;
   late ScrollController _controller;
 
   @override
   void initState() {
     super.initState();
     _controller = widget.scrollController ?? ScrollController();
-    _controller.addListener(_scrollListener);
-  }
-
-  void _scrollListener() {
-    if (_controller.position.userScrollDirection == ScrollDirection.reverse) {
-      if (_isHeaderVisible) {
-        setState(() => _isHeaderVisible = false);
-      }
-    } else if (_controller.position.userScrollDirection ==
-        ScrollDirection.forward) {
-      if (!_isHeaderVisible) {
-        setState(() => _isHeaderVisible = true);
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.removeListener(_scrollListener);
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: appTheme.white_A700,
-      body: CustomScrollView(
-        controller: _controller,
-        slivers: [
-          // ✅ Animated header that hides on scroll
-          SliverToBoxAdapter(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              height: _isHeaderVisible ? null : 0,
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 300),
-                opacity: _isHeaderVisible ? 1 : 0,
-                child: _buildHeader(),
-              ),
-            ),
-          ),
-
-          // ✅ Scrollable content
-          SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 16),
-                _buildGroceryKitchenSection(),
-                const SizedBox(height: 16),
-                _buildSnacksDrinksSection(),
-                const SizedBox(height: 16),
-                _buildHouseholdEssentialsSection(),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ✅ HEADER (with gradient + SafeArea)
-  Widget _buildHeader() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFFE53935), Color(0xFFFF6B6B), Color(0xFFFFC1C1)],
-          stops: [0.0, 0.5, 1.0],
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.only(top: 10.h, bottom: 10.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomBlinkitAppBar(
-                locationLabel: "HOME",
-                address: "Trycode Innovations Calicut",
-                onLocationPressed: controller.onLocationPressed,
-                onActionPressed: controller.onProfilePressed,
-              ),
-              SizedBox(height: 6.h),
-              _buildSearchBar(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ✅ SEARCH BAR
-  Widget _buildSearchBar() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 14.h),
-      padding: EdgeInsets.symmetric(horizontal: 26.h, vertical: 8.h),
-      decoration: BoxDecoration(
-        color: appTheme.white_A700,
-        borderRadius: BorderRadius.circular(10.h),
-        border: Border.all(color: appTheme.gray_400, width: 1.h),
-      ),
-      child: Row(
-        children: [
-          CustomImageView(
-            imagePath: ImageConstant.imgSearchinterfacesymbol1,
-            height: 14.h,
-            width: 14.h,
-          ),
-          SizedBox(width: 12.h),
-          Expanded(
-            child: TextFormField(
-              controller: controller.searchController,
-              style: TextStyleHelper.instance.body12RegularPoppins.copyWith(
-                color: appTheme.black_900,
-              ),
-              decoration: InputDecoration(
-                hintText: "Search \"ice-cream\"",
-                hintStyle: TextStyleHelper.instance.body12RegularPoppins,
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
-              ),
-              onChanged: controller.onSearchChanged,
-            ),
-          ),
-          SizedBox(width: 12.h),
-          GestureDetector(
-            onTap: controller.onVoiceSearchPressed,
-            child: CustomImageView(
-              imagePath: ImageConstant.imgMic1,
-              height: 14.h,
-              width: 14.h,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ✅ GROCERY & KITCHEN SECTION
-  Widget _buildGroceryKitchenSection() {
-    return Container(
-      margin: EdgeInsets.only(top: 24.h, left: 14.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Grocery & Kitchen",
-            style: TextStyleHelper.instance.body14BoldPoppins,
-          ),
-          SizedBox(height: 6.h),
-          SizedBox(
-            height: 240.h,
-            child: GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.zero,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 114 / 70,
-                crossAxisSpacing: 8.h,
-                mainAxisSpacing: 8.h,
-              ),
-              itemCount: controller.groceryKitchenItems.length,
-              itemBuilder: (context, index) {
-                final item = controller.groceryKitchenItems[index];
-                return GestureDetector(
-                  onTap: () => controller.onCategoryItemPressed(item),
-                  child: Column(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header Section
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.h, vertical: 10.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        height: 78.h,
-                        width: 70.h,
-                        decoration: BoxDecoration(
-                          color: appTheme.teal_50,
-                          borderRadius: BorderRadius.circular(10.h),
-                        ),
-                        child: Center(
-                          child: CustomImageView(
-                            imagePath: item.imagePath.value,
-                            height: item.imageHeight.value.h,
-                            width: item.imageWidth.value.h,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 6.h),
-                      Text(
-                        item.title.value,
-                        textAlign: TextAlign.center,
-                        style: TextStyleHelper.instance.label10RegularPoppins,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [],
                       ),
                     ],
                   ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ✅ SNACKS & DRINKS SECTION
-  Widget _buildSnacksDrinksSection() {
-    return Container(
-      margin: EdgeInsets.only(top: 16.h, left: 14.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Snacks & Drinks",
-            style: TextStyleHelper.instance.body14BoldPoppins,
-          ),
-          SizedBox(height: 10.h),
-          SizedBox(
-            height: 118.h,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.zero,
-              itemCount: controller.snacksDrinksItems.length,
-              separatorBuilder: (_, __) => SizedBox(width: 8.h),
-              itemBuilder: (context, index) {
-                final item = controller.snacksDrinksItems[index];
-                return GestureDetector(
-                  onTap: () => controller.onCategoryItemPressed(item),
-                  child: Column(
+                  SizedBox(height: 16.h),
+                  // Search Row
+                  Row(
                     children: [
-                      Container(
-                        height: 78.h,
-                        width: 70.h,
-                        decoration: BoxDecoration(
-                          color: appTheme.teal_50,
-                          borderRadius: BorderRadius.circular(10.h),
-                        ),
-                        child: Center(
-                          child: CustomImageView(
-                            imagePath: item.imagePath.value,
-                            height: item.imageHeight.value.h,
-                            width: item.imageWidth.value.h,
-                            fit: BoxFit.contain,
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.h,
+                            vertical: 12.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(30.h),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.search,
+                                color: Theme.of(context).iconTheme.color,
+                              ),
+                              SizedBox(width: 10.h),
+                              Text(
+                                "Search...",
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.color,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      SizedBox(height: 10.h),
-                      Text(
-                        item.title.value,
-                        textAlign: TextAlign.center,
-                        style: TextStyleHelper.instance.label10RegularPoppins,
+                      SizedBox(width: 12.h),
+                      Container(
+                        padding: EdgeInsets.all(12.h),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          border: Border.all(color: Colors.grey.shade300),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.tune,
+                          color: Theme.of(context).iconTheme.color,
+                        ),
                       ),
                     ],
                   ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ✅ HOUSEHOLD ESSENTIALS SECTION
-  Widget _buildHouseholdEssentialsSection() {
-    return Container(
-      margin: EdgeInsets.only(top: 8.h, left: 14.h, bottom: 20.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Household Essentials",
-            style: TextStyleHelper.instance.body14BoldPoppins,
-          ),
-          SizedBox(height: 12.h),
-          SizedBox(
-            height: 78.h,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.zero,
-              itemCount: controller.householdEssentialsItems.length,
-              separatorBuilder: (_, __) => SizedBox(width: 8.h),
-              itemBuilder: (context, index) {
-                final item = controller.householdEssentialsItems[index];
-                return GestureDetector(
-                  onTap: () => controller.onCategoryItemPressed(item),
-                  child: Container(
-                    height: 78.h,
-                    width: 70.h,
+                  SizedBox(height: 20.h),
+                  // Promo Banner
+                  Container(
+                    height: 140.h,
+                    width: double.maxFinite,
                     decoration: BoxDecoration(
-                      color: appTheme.teal_50,
-                      borderRadius: BorderRadius.circular(10.h),
+                      color: Color(0xFFE1EAD8), // Slightly darker green
+                      borderRadius: BorderRadius.circular(12.h),
                     ),
-                    child: Center(
-                      child: CustomImageView(
-                        imagePath: item.imagePath.value,
-                        height: item.imageHeight.value.h,
-                        width: item.imageWidth.value.h,
-                        fit: BoxFit.contain,
-                      ),
+                    child: Stack(
+                      children: [
+                        Row(
+                          children: [
+                            // Left Side - Barcode
+                            Container(
+                              width: 80.h,
+                              padding: EdgeInsets.symmetric(vertical: 8.h),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  right: BorderSide(
+                                    color: Colors.grey.shade400,
+                                    width: 1,
+                                    style: BorderStyle.none, // Handled by dash
+                                  ),
+                                ),
+                              ),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Barcode Lines Simulation
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: List.generate(8, (index) {
+                                        // Reduced count
+                                        return Container(
+                                          height: index % 2 == 0 ? 3.h : 1.5.h,
+                                          width: 50.h,
+                                          margin: EdgeInsets.symmetric(
+                                            vertical: 1.5.h,
+                                          ),
+                                          color: Colors.black,
+                                        );
+                                      }),
+                                    ),
+                                    SizedBox(height: 4.h),
+                                    RotatedBox(
+                                      quarterTurns: 3,
+                                      child: Text(
+                                        "Code No.: 2193052",
+                                        style: TextStyle(
+                                          fontSize: 8.h,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            // Dotted Line Separator
+                            CustomPaint(
+                              size: Size(1, 140.h),
+                              painter: DashedLinePainter(),
+                            ),
+                            // Right Side - Content
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.all(12.h),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 8.h,
+                                              vertical: 2.h,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: Colors.black54,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: Text(
+                                              "ALICE GROCERY",
+                                              style: TextStyle(
+                                                fontSize: 8.h,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 4.h),
+                                          Text(
+                                            "PROMO COUPON",
+                                            style: TextStyle(
+                                              fontSize: 14.h,
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          Text(
+                                            "50% OFF",
+                                            style: TextStyle(
+                                              fontSize: 32.h,
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.black,
+                                              height: 1.0,
+                                            ),
+                                          ),
+                                          SizedBox(height: 4.h),
+                                          Text(
+                                            "For any product in grocery store",
+                                            style: TextStyle(
+                                              fontSize: 8.h,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    // Image
+                                    CustomImageView(
+                                      imagePath: ImageConstant.imgImage19,
+                                      height: 60.h,
+                                      width: 60.h,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        // Notches
+                        Positioned(
+                          top: -10.h,
+                          left: 71.h, // Approx position for separator
+                          child: Container(
+                            height: 20.h,
+                            width: 20.h,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: -10.h,
+                          left: 71.h,
+                          child: Container(
+                            height: 20.h,
+                            width: 20.h,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                );
-              },
+                ],
+              ),
             ),
-          ),
-        ],
+
+            // Staggered Grid Content
+            Expanded(
+              child: Obx(() {
+                if (controller.collections.isEmpty)
+                  return Center(
+                    child: Text(
+                      "No Items Found: ${controller.collections.length}",
+                    ),
+                  );
+
+                return GridView.builder(
+                  controller: _controller,
+                  padding: EdgeInsets.symmetric(horizontal: 20.h),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 20.h, // Increased spacing
+                    mainAxisSpacing: 20.h, // Increased spacing
+                    childAspectRatio: 0.75, // Adjusted for smaller circles
+                  ),
+                  itemCount: controller.collections.length,
+                  itemBuilder: (context, index) {
+                    var item = controller.collections[index];
+                    return GestureDetector(
+                      onTap: () {
+                        if (item.title.contains("Meat") ||
+                            item.title.contains("Fish")) {
+                          Get.toNamed(AppRoutes.meatScreen);
+                        } else {
+                          Get.toNamed(
+                            AppRoutes.categoryScreen,
+                            arguments: index,
+                          );
+                        }
+                      },
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 74.h, // Reduced from 80
+                            width: 74.h, // Reduced from 80
+                            padding: EdgeInsets.all(14.h),
+                            decoration: BoxDecoration(
+                              color: item.color,
+                              shape: BoxShape.circle,
+                            ),
+                            child: CustomImageView(
+                              imagePath: item.imagePath,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          Text(
+                            item.title,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11.h, // Slightly smaller text
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodyLarge?.color,
+                              height: 1.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+class DashedLinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    double dashHeight = 5, dashSpace = 3, startY = 0;
+    final paint = Paint()
+      ..color = Colors.grey
+      ..strokeWidth = 1;
+    while (startY < size.height) {
+      canvas.drawLine(Offset(0, startY), Offset(0, startY + dashHeight), paint);
+      startY += dashHeight + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

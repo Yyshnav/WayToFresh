@@ -14,11 +14,18 @@ class HomeController extends GetxController {
 
   // ✅ Added for bottom bar hide/show animation
   RxBool hideBottomBar = false.obs;
+  bool hasShownAddressSheet =
+      false; // Flag to track if address sheet has been shown
 
+  RxList<ProductItemModel> dailyEssentials = <ProductItemModel>[].obs;
+  RxList<ProductItemModel> trendingProducts = <ProductItemModel>[].obs;
+  RxList<String> bannerImages = <String>[].obs;
   RxList<CategoryItemModel> categoryItems = <CategoryItemModel>[].obs;
   RxList<ProductItemModel> productItems = <ProductItemModel>[].obs;
   RxList<GroceryCategoryItemModel> groceryCategories =
       <GroceryCategoryItemModel>[].obs;
+  // List for pagination
+  RxList<ProductItemModel> moreProducts = <ProductItemModel>[].obs;
 
   @override
   void onInit() {
@@ -66,19 +73,19 @@ class HomeController extends GetxController {
     productItems.value = [
       ProductItemModel(
         title: "Golden Glass \nWooden Lid Candle (Oudh)",
-        image: ImageConstant.imgImage54,
+        images: [ImageConstant.imgImage54, ImageConstant.imgImage55],
         deliveryTime: "16 MINS",
         price: 79,
       ),
       ProductItemModel(
         title: "Royal Gulab Jamun \nBy Bikano",
-        image: ImageConstant.imgImage57,
+        images: [ImageConstant.imgImage57, ImageConstant.imgImage60],
         deliveryTime: "16 MINS",
         price: 79,
       ),
       ProductItemModel(
         title: "Bikaji Bhujia",
-        image: ImageConstant.imgImage54,
+        images: [ImageConstant.imgImage54, ImageConstant.imgImage55],
         deliveryTime: "16 MINS",
         price: 79,
       ),
@@ -116,6 +123,75 @@ class HomeController extends GetxController {
         imageHeight: 50.0,
         imageWidth: 50.0,
       ),
+    ];
+
+    // Mock Data for New Sections
+    dailyEssentials.value = [
+      ProductItemModel(
+        title: "Farm Fresh Milk",
+        images: [ImageConstant.milk1, ImageConstant.milk2],
+        deliveryTime: "10 MINS",
+        price: 32,
+        category: 3, // Dairy
+      ),
+      ProductItemModel(
+        title: "Brown Bread",
+        images: [ImageConstant.milk2, ImageConstant.milk3],
+        deliveryTime: "12 MINS",
+        price: 45,
+        category: 3, // Dairy
+      ),
+      ProductItemModel(
+        title: "Free Range Eggs",
+        images: [ImageConstant.milk3, ImageConstant.milk1],
+        deliveryTime: "15 MINS",
+        price: 89,
+        category: 3, // Dairy
+      ),
+      ProductItemModel(
+        title: "Salted Butter",
+        images: [ImageConstant.milk1, ImageConstant.milk2],
+        deliveryTime: "8 MINS",
+        price: 56,
+        category: 3, // Dairy
+      ),
+    ];
+
+    trendingProducts.value = [
+      ProductItemModel(
+        title: "Spicy Lays",
+        images: [ImageConstant.lays, ImageConstant.kurukure],
+        deliveryTime: "8 MINS",
+        price: 20,
+        category: 1, // Chips
+      ),
+      ProductItemModel(
+        title: "Kurkure Masala",
+        images: [ImageConstant.kurukure, ImageConstant.lays],
+        deliveryTime: "8 MINS",
+        price: 20,
+        category: 1, // Chips
+      ),
+      ProductItemModel(
+        title: "Coca Cola",
+        images: [ImageConstant.coke, ImageConstant.lays],
+        deliveryTime: "10 MINS",
+        price: 40,
+        category: 4, // Drinks
+      ),
+      ProductItemModel(
+        title: "Dairy Milk Silk",
+        images: [ImageConstant.diarymilk, ImageConstant.lays],
+        deliveryTime: "5 MINS",
+        price: 80,
+        category: 5, // Sweets
+      ),
+    ];
+
+    bannerImages.value = [
+      ImageConstant.imgImage55, // Placeholder banners
+      ImageConstant.imgImage60,
+      ImageConstant.imgImage55,
     ];
   }
 

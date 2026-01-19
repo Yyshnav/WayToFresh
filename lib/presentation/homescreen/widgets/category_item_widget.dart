@@ -1,17 +1,14 @@
-
 import 'package:flutter/material.dart';
 import 'package:waytofresh/core/app_expote.dart';
 import 'package:waytofresh/presentation/category_screen/models/categoryitemmodel.dart';
 import 'package:waytofresh/theme/text_style_helper.dart';
 
 import '../../../widgets/custom_image_view.dart';
+
 class CategoryItemWidget extends StatelessWidget {
   final CategoryItemModel category;
 
-  CategoryItemWidget({
-    Key? key,
-    required this.category,
-  }) : super(key: key);
+  CategoryItemWidget({Key? key, required this.category}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +21,9 @@ class CategoryItemWidget extends StatelessWidget {
             width: double.infinity,
             height: 108.h,
             decoration: BoxDecoration(
-              color: appTheme.gray_300,
+              color: Theme.of(
+                context,
+              ).cardColor, // Use cardColor instead of gray_300
               borderRadius: BorderRadius.circular(10.h),
             ),
           ),
@@ -53,6 +52,8 @@ class CategoryItemWidget extends StatelessWidget {
                     child: Text(
                       category.title.value,
                       textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyleHelper.instance.label10SemiBoldPoppins,
                     ),
                   ),

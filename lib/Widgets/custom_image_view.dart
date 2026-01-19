@@ -6,7 +6,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:waytofresh/core/utils/image_constants.dart';
 import 'package:waytofresh/theme/theme_helper.dart';
 
-
 extension ImageTypeExtension on String {
   ImageType get imageType {
     if (this.startsWith('http') || this.startsWith('https')) {
@@ -27,18 +26,19 @@ extension ImageTypeExtension on String {
 enum ImageType { svg, png, network, networkSvg, file, unknown }
 
 class CustomImageView extends StatelessWidget {
-  CustomImageView(
-      {this.imagePath,
-      this.height,
-      this.width,
-      this.color,
-      this.fit,
-      this.alignment,
-      this.onTap,
-      this.radius,
-      this.margin,
-      this.border,
-      this.placeHolder}) {
+  CustomImageView({
+    this.imagePath,
+    this.height,
+    this.width,
+    this.color,
+    this.fit,
+    this.alignment,
+    this.onTap,
+    this.radius,
+    this.margin,
+    this.border,
+    this.placeHolder,
+  }) {
     if (imagePath == null || imagePath!.isEmpty) {
       imagePath = ImageConstant.imgImageNotFound;
     }
@@ -77,10 +77,7 @@ class CustomImageView extends StatelessWidget {
   Widget _buildWidget() {
     return Padding(
       padding: margin ?? EdgeInsets.zero,
-      child: InkWell(
-        onTap: onTap,
-        child: _buildCircleImage(),
-      ),
+      child: InkWell(onTap: onTap, child: _buildCircleImage()),
     );
   }
 
@@ -100,10 +97,7 @@ class CustomImageView extends StatelessWidget {
   _buildImageWithBorder() {
     if (border != null) {
       return Container(
-        decoration: BoxDecoration(
-          border: border,
-          borderRadius: radius,
-        ),
+        decoration: BoxDecoration(border: border, borderRadius: radius),
         child: _buildImageView(),
       );
     } else {
@@ -112,6 +106,15 @@ class CustomImageView extends StatelessWidget {
   }
 
   Widget _buildImageView() {
+    if (imagePath == null || imagePath!.isEmpty) {
+      return Image.asset(
+        placeHolder ?? ImageConstant.imgImageNotFound,
+        height: height,
+        width: width,
+        fit: fit ?? BoxFit.cover,
+      );
+    }
+
     switch (imagePath!.imageType) {
       case ImageType.svg:
         return Container(
@@ -124,7 +127,9 @@ class CustomImageView extends StatelessWidget {
             fit: fit ?? BoxFit.contain,
             colorFilter: this.color != null
                 ? ColorFilter.mode(
-                    this.color ?? appTheme.transparentCustom, BlendMode.srcIn)
+                    this.color ?? appTheme.transparentCustom,
+                    BlendMode.srcIn,
+                  )
                 : null,
           ),
         );
@@ -144,7 +149,9 @@ class CustomImageView extends StatelessWidget {
           fit: fit ?? BoxFit.contain,
           colorFilter: this.color != null
               ? ColorFilter.mode(
-                  this.color ?? appTheme.transparentCustom, BlendMode.srcIn)
+                  this.color ?? appTheme.transparentCustom,
+                  BlendMode.srcIn,
+                )
               : null,
         );
       case ImageType.network:

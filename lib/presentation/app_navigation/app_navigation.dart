@@ -4,8 +4,6 @@ import 'package:waytofresh/core/app_expote.dart';
 import 'package:waytofresh/presentation/app_navigation/app_navigationcontroller.dart/controller.dart';
 import 'package:waytofresh/routes/app_routes.dart';
 
-
-
 // ignore_for_file: must_be_immutable
 
 class AppNavigationScreen extends GetWidget<AppNavigationController> {
@@ -26,13 +24,13 @@ class AppNavigationScreen extends GetWidget<AppNavigationController> {
                     children: [
                       _buildScreenTitle(
                         context,
-                        screenTitle: "Blinkit Category Screen",
+                        screenTitle: " Category Screen",
                         onTapScreenTitle: () =>
                             onTapScreenTitle(context, AppRoutes.categoryScreen),
                       ),
                       _buildScreenTitle(
                         context,
-                        screenTitle: "Blinkit Home Screen",
+                        screenTitle: " Home Screen",
                         onTapScreenTitle: () =>
                             onTapScreenTitle(context, AppRoutes.homeScreen),
                       ),
@@ -40,7 +38,7 @@ class AppNavigationScreen extends GetWidget<AppNavigationController> {
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -69,13 +67,11 @@ class AppNavigationScreen extends GetWidget<AppNavigationController> {
                 Text(
                   screenTitle,
                   textAlign: TextAlign.center,
-                  style: TextStyleHelper.instance.title20RegularRoboto
-                      .copyWith(color: Color(0XFF000000)),
+                  style: TextStyleHelper.instance.title20RegularRoboto.copyWith(
+                    color: Color(0XFF000000),
+                  ),
                 ),
-                Icon(
-                  Icons.arrow_forward,
-                  color: Color(0XFF343330),
-                )
+                Icon(Icons.arrow_forward, color: Color(0XFF343330)),
               ],
             ),
             SizedBox(height: 10.h),

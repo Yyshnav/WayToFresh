@@ -50,6 +50,7 @@ import 'package:get/get.dart';
 import 'package:waytofresh/core/utils/size_utils.dart';
 import 'package:waytofresh/routes/app_routes.dart';
 import 'package:waytofresh/theme/theme_helper.dart';
+import 'package:waytofresh/core/utils/toast_helper.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,10 +77,19 @@ class MyApp extends StatelessWidget {
               debugShowCheckedModeBanner: false,
               title: 'blinkit_grocery',
               theme: theme,
+              darkTheme: ThemeData(
+                visualDensity: VisualDensity.standard,
+                colorScheme: ColorSchemes.darkCodeColorScheme,
+                scaffoldBackgroundColor:
+                    ColorSchemes.darkCodeColorScheme.background,
+              ),
+              themeMode: ThemeMode.system,
               locale: const Locale('en', ''),
               fallbackLocale: const Locale('en', ''),
               initialRoute: AppRoutes.initialRoute,
               getPages: AppRoutes.pages,
+              navigatorKey: Get.key,
+              scaffoldMessengerKey: ToastHelper.messengerKey,
 
               // 👇 Ensures consistent text scaling across devices
               builder: (context, child) {
