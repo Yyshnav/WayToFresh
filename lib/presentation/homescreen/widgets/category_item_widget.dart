@@ -13,17 +13,17 @@ class CategoryItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 86.h,
-      height: 116.h,
+      width: 96.h,
+      height: 126.h,
       child: Stack(
         children: [
           Container(
             width: double.infinity,
-            height: 108.h,
+            height: 118.h,
             decoration: BoxDecoration(
               color: Theme.of(
                 context,
-              ).cardColor, // Use cardColor instead of gray_300
+              ).cardColor,
               borderRadius: BorderRadius.circular(10.h),
             ),
           ),
@@ -32,7 +32,7 @@ class CategoryItemWidget extends StatelessWidget {
             left: 0,
             right: 0,
             child: Container(
-              height: 98.h,
+              height: 108.h,
               child: Stack(
                 children: [
                   Positioned(
@@ -41,8 +41,8 @@ class CategoryItemWidget extends StatelessWidget {
                     right: 0,
                     child: CustomImageView(
                       imagePath: category.imagePath.string,
-                      height: 86.h,
-                      width: 86.h,
+                      height: 96.h,
+                      width: 96.h,
                     ),
                   ),
                   Positioned(

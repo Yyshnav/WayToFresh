@@ -1,1581 +1,563 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'dart:ui';
+import 'package:waytofresh/core/app_expote.dart';
+import 'package:waytofresh/core/utils/image_constants.dart';
+import 'package:waytofresh/theme/theme_helper.dart';
 import 'package:waytofresh/widgets/custom_image_view.dart';
-import 'package:waytofresh/presentation/category_screen/controller/cart_controller.dart';
+import 'controller/meat_controller.dart';
 import 'package:waytofresh/presentation/category_screen/widgets/cart_summary.dart';
-import 'package:waytofresh/presentation/homescreen/product_item_model.dart';
-import 'package:waytofresh/widgets/product_details_bottom_sheet.dart';
+import 'package:waytofresh/presentation/category_screen/controller/cart_controller.dart';
 import 'package:waytofresh/presentation/homescreen/widgets/home_carousel.dart';
-import 'package:waytofresh/routes/app_routes.dart';
-import 'package:waytofresh/presentation/meat_screen/bulk_order_screen.dart';
 
-class MeatScreen extends StatelessWidget {
+class MeatScreen extends GetView<MeatController> {
   const MeatScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Inject Controller
-    final CartController controller = Get.put(CartController());
-
-    // Filter Meat Products (Category 6)
-    final meatProducts = controller.allProducts
-        .where((p) => p["category"] == 6)
-        .toList();
-
     return Scaffold(
-      // Add gradient background with transparency
-      backgroundColor: Colors.transparent,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFEF9F0), // Light cream with transparency
-              Color(0xFFFEF5E7),
-              Color(0xFFFEF0DB),
-            ],
+      backgroundColor: Colors.white,
+      body: Obx(() {
+        if (controller.showOnboarding.value) {
+          return _buildOnboarding(context);
+        } else {
+          return _buildMainContent(context);
+        }
+      }),
+      bottomNavigationBar: Obx(() {
+        if (controller.showOnboarding.value) return const SizedBox.shrink();
+        return _buildBottomNav(context);
+      }),
+    );
+  }
+
+  Widget _buildBottomNav(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
           ),
-        ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              // Background pattern overlay with transparency
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.03,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage("assets/images/meat.jpg"),
-                        repeat: ImageRepeat.repeat,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              RefreshIndicator(
-                onRefresh: controller.refreshProducts,
-                color: const Color(0xFF8B4513),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 20,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 80),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Glass morphism search bar
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 20),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.9),
-                                    borderRadius: BorderRadius.circular(30),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 5),
-                                      ),
-                                    ],
-                                    border: Border.all(
-                                      color: Colors.white.withOpacity(0.3),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.search,
-                                        color: Colors.black54,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      const Text(
-                                        "Search for meat...",
-                                        style: TextStyle(color: Colors.grey),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.9),
-                                  border: Border.all(
-                                    color: Colors.white.withOpacity(0.3),
-                                  ),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.tune,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        HomeCarousel(
-                          images: [
-                            "assets/images/meat.jpg",
-                            "assets/images/meat.jpg",
-                            "assets/images/meat.jpg",
-                            "assets/images/meat.jpg",
-                          ],
-                        ),
-                        const SizedBox(height: 25),
-
-                        // Header with subtle shadow
-                        Stack(
-                          children: [
-                            // Text shadow effect
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Premium Meat Selection",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: const Color(
-                                      0xFF8B4513,
-                                    ).withOpacity(0.3),
-                                  ),
-                                ),
-                                Text(
-                                  "Fresh Cuts Delivered",
-                                  style: TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(
-                                      0xFFB22222,
-                                    ).withOpacity(0.3),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
-                                  "Premium Meat Selection",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF8B4513),
-                                  ),
-                                ),
-                                Text(
-                                  "Fresh Cuts Delivered",
-                                  style: TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFFB22222),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 25),
-
-                        // Dynamic Product List with glass morphism
-                        if (meatProducts.isEmpty)
-                          Center(
-                            child: Container(
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.8),
-                                borderRadius: BorderRadius.circular(15),
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0.3),
-                                ),
-                              ),
-                              child: const Text(
-                                "No products found.",
-                                style: TextStyle(color: Color(0xFF654321)),
-                              ),
-                            ),
-                          )
-                        else
-                          ListView.separated(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: meatProducts.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 25),
-                            itemBuilder: (context, index) {
-                              final product = meatProducts[index];
-                              final productIndex = controller.allProducts
-                                  .indexOf(product);
-
-                              return Container(
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 15,
-                                      spreadRadius: 2,
-                                      offset: const Offset(0, 8),
-                                    ),
-                                  ],
-                                ),
-                                child: _buildMeatItem(
-                                  number: (index + 1).toString().padLeft(
-                                    2,
-                                    '0',
-                                  ),
-                                  title: product["name"],
-                                  description:
-                                      product["description"] ??
-                                      "Delicious meat product",
-                                  imagePath: product["image"],
-                                  price: "\$${product["price"]}",
-                                  buttonColor: index % 2 == 0
-                                      ? const Color(0xFF8B4513)
-                                      : const Color(0xFFA52A2A),
-                                  rating: (product["rating"] as num).toDouble(),
-                                  isImageRight: index % 2 == 0,
-                                  controller: controller,
-                                  productIndex: productIndex,
-                                ),
-                              );
-                            },
-                          ),
-
-                        const SizedBox(height: 35),
-
-                        // Bulk Ordering Section
-                        _buildBulkOrderSection(),
-
-                        const SizedBox(height: 35),
-
-                        // Categories Section with transparent background
-                        Container(
-                          padding: const EdgeInsets.all(15),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.4),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Shop by Category",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF8B4513),
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-                              SizedBox(
-                                height: 110,
-                                child: ListView(
-                                  scrollDirection: Axis.horizontal,
-                                  children: [
-                                    _CategoryItem(
-                                      title: "Spring Chicken",
-                                      image: "assets/images/meat.jpg",
-                                    ),
-                                    _CategoryItem(
-                                      title: "Mutton Chops",
-                                      image: "assets/images/meat.jpg",
-                                    ),
-                                    _CategoryItem(
-                                      title: "Prime Beef",
-                                      image: "assets/images/meat.jpg",
-                                    ),
-                                    _CategoryItem(
-                                      title: "Fresh Seafood",
-                                      image: "assets/images/meat.jpg",
-                                    ),
-                                    _CategoryItem(
-                                      title: "Pork Ribs",
-                                      image: "assets/images/meat.jpg",
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 30),
-
-                        // Best Sellers Section with glass effect
-                        Container(
-                          padding: const EdgeInsets.all(15),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.4),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Best Sellers",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF8B4513),
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-                              SizedBox(
-                                height: 220,
-                                child: ListView.separated(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: meatProducts.length,
-                                  separatorBuilder: (context, index) =>
-                                      const SizedBox(width: 15),
-                                  itemBuilder: (context, index) {
-                                    final product = meatProducts[index];
-                                    final productIndex = controller.allProducts
-                                        .indexOf(product);
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(
-                                              0.05,
-                                            ),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 5),
-                                          ),
-                                        ],
-                                      ),
-                                      child: _MeatProductCard(
-                                        product: product,
-                                        productIndex: productIndex,
-                                        controller: controller,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 30),
-
-                        // Why Choose Us with glass morphism
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.85),
-                            borderRadius: BorderRadius.circular(15),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
-                                blurRadius: 15,
-                                spreadRadius: 1,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.4),
-                              width: 1,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Why Choose Our Meat?",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF8B4513),
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-                              _buildSimpleFeature(
-                                "✓ 100% Fresh & Quality Checked",
-                              ),
-                              _buildSimpleFeature(
-                                "✓ Hygienic Packaging & Handling",
-                              ),
-                              _buildSimpleFeature(
-                                "✓ Same Day Delivery Available",
-                              ),
-                              _buildSimpleFeature("✓ Premium Cuts Only"),
-                              _buildSimpleFeature("✓ Sustainable Sources"),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 30),
-
-                        // Explore More Section
-                        Container(
-                          padding: const EdgeInsets.all(15),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.4),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Explore More",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF8B4513),
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-                              GridView.builder(
-                                physics: const NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      childAspectRatio: 0.65,
-                                      crossAxisSpacing: 15,
-                                      mainAxisSpacing: 15,
-                                    ),
-                                itemCount: meatProducts.length,
-                                itemBuilder: (context, index) {
-                                  final product = meatProducts[index];
-                                  final productIndex = controller.allProducts
-                                      .indexOf(product);
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 5),
-                                        ),
-                                      ],
-                                    ),
-                                    child: _GridProductCard(
-                                      product: product,
-                                      productIndex: productIndex,
-                                      controller: controller,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 30),
-
-                        // Floating decorative element at bottom
-                        Center(
-                          child: Container(
-                            width: 100,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  const Color(0xFF8B4513).withOpacity(0.3),
-                                  const Color(0xFFD2B48C).withOpacity(0.3),
-                                  const Color(0xFF8B4513).withOpacity(0.3),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              // Floating Cart Summary with glass effect
-              Obx(() {
-                if (controller.totalCartItems > 0) {
-                  return Positioned(
-                    bottom: 16,
-                    left: 16,
-                    right: 16,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 20,
-                            spreadRadius: 1,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: BackdropFilter(
-                          filter: ColorFilter.mode(
-                            Colors.white.withOpacity(0.2),
-                            BlendMode.srcOver,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.3),
-                              ),
-                            ),
-                            child: CartSummary(
-                              controller: controller,
-                              onTap: () =>
-                                  Get.toNamed(AppRoutes.checkoutScreen),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              }),
-            ],
+        ],
+      ),
+      child: BottomNavigationBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        currentIndex: controller.selectedBottomTab.value,
+        onTap: (index) {
+          controller.selectBottomTab(index);
+          HapticFeedback.mediumImpact();
+        },
+        selectedItemColor: const Color(0xFF800000),
+        unselectedItemColor: Colors.grey.shade400,
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.h),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 12.h),
+        type: BottomNavigationBarType.fixed,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.square_grid_2x2, size: 24.h),
+            activeIcon: Icon(CupertinoIcons.square_grid_2x2_fill, size: 24.h),
+            label: "Meat",
           ),
-        ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.ant, size: 24.h), // Placeholder for chicken
+            activeIcon: Icon(CupertinoIcons.ant_fill, size: 24.h),
+            label: "Chicken",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.circle_grid_hex, size: 24.h), // Placeholder for mutton
+            activeIcon: Icon(CupertinoIcons.circle_grid_hex_fill, size: 24.h),
+            label: "Mutton",
+          ),
+        ],
       ),
     );
   }
 
-  static Widget _buildMeatItem({
-    required String number,
-    required String title,
-    required String description,
-    required String imagePath,
-    required String price,
-    required Color buttonColor,
-    required double rating,
-    required bool isImageRight,
-    required CartController controller,
-    required int productIndex,
-  }) {
-    return SizedBox(
-      height: 200, // Reduced height
-      child: GestureDetector(
-        onTap: () {
-          final productMap = controller.allProducts[productIndex];
-          Get.bottomSheet(
-            ProductDetailsBottomSheet(
-              product: ProductItemModel.fromMap(productMap),
-            ),
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-          );
-        },
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // 1. Card Background & Image (Centered, Small)
-            Positioned.fill(
-              child: Container(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 5,
-                ), // Tight margins
-                decoration: BoxDecoration(
-                  color: Colors.white, // Solid card background
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      spreadRadius: 1,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Stack(
-                    children: [
-                      // Right-Aligned Small Image with Fade
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: ShaderMask(
-                            shaderCallback: (Rect bounds) {
-                              return const LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: [Colors.black, Colors.transparent],
-                              ).createShader(bounds);
-                            },
-                            blendMode: BlendMode.dstIn,
-                            child: Opacity(
-                              opacity: 0.9,
-                              child: CustomImageView(
-                                imagePath: imagePath,
-                                height: 180,
-                                width: 180,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      // Light Gradient Overlay (for text readability over the image)
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.white.withOpacity(0.5),
-                              Colors.white.withOpacity(0.8),
-                            ],
-                            stops: const [0.0, 0.6, 1.0],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // 2. Text Content on Top
-            Positioned(
-              left: 15,
-              right: 15,
-              bottom: 15,
-              top: 15,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Number with glow
-                      Stack(
-                        children: [
-                          Text(
-                            number,
-                            style: TextStyle(
-                              fontSize: 30, // Reduced from 40
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFFD2B48C).withOpacity(0.35),
-                            ),
-                          ),
-                          Text(
-                            number,
-                            style: const TextStyle(
-                              fontSize: 30, // Reduced from 40
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFD2B48C),
-                            ),
-                          ),
-                        ],
-                      ),
-                      // Rating
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                              size: 14,
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              rating.toString(),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF654321),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18, // Reduced from 22
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF654321),
-                      height: 1.1,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: const TextStyle(
-                      fontSize: 12, // Reduced from 13
-                      color: Color(0xFF8B7355),
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 10),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          price,
-                          style: TextStyle(
-                            fontSize: 18, // Reduced from 20
-                            fontWeight: FontWeight.bold,
-                            color: buttonColor,
-                          ),
-                        ),
-                        const SizedBox(width: 15),
-                        Obx(() {
-                          final quantity =
-                              controller.cartItems[productIndex] ?? 0;
-                          if (quantity > 0) {
-                            return Container(
-                              height: 35, // Explicit smaller height
-                              decoration: BoxDecoration(
-                                color: buttonColor,
-                                borderRadius: BorderRadius.circular(18),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: buttonColor.withOpacity(0.3),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.remove,
-                                      color: Colors.white,
-                                      size: 16,
-                                    ),
-                                    onPressed: () =>
-                                        controller.removeFromCart(productIndex),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 35,
-                                      minHeight: 35,
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                  ),
-                                  Container(
-                                    constraints: const BoxConstraints(
-                                      minWidth: 15,
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      '$quantity',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.add,
-                                      color: Colors.white,
-                                      size: 16,
-                                    ),
-                                    onPressed: () =>
-                                        controller.addToCart(productIndex),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 35,
-                                      minHeight: 35,
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                  ),
-                                ],
-                              ),
-                            );
-                          } else {
-                            return SizedBox(
-                              height: 35,
-                              child: ElevatedButton(
-                                onPressed: () =>
-                                    controller.addToCart(productIndex),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: buttonColor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                  elevation: 2,
-                                  shadowColor: buttonColor.withOpacity(0.3),
-                                ),
-                                child: const Text(
-                                  "Add to Cart",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                        }),
-                      ],
-                    ),
-                  ),
+  // 1. ONBOARDING VIEW
+  Widget _buildOnboarding(BuildContext context) {
+    return Stack(
+      children: [
+        // Background Image
+        Positioned.fill(
+          child: CustomImageView(
+            imagePath: ImageConstant.imgMeatHero,
+            fit: BoxFit.cover,
+          ),
+        ),
+        // Dark Overlay
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.4),
+                  Colors.black.withOpacity(0.9),
                 ],
               ),
             ),
-          ],
+          ),
         ),
-      ),
-    );
-  }
-
-  static Widget _buildSimpleFeature(String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Icon(
-            Icons.check_circle,
-            color: const Color(0xFF8B4513).withOpacity(0.8),
-            size: 16,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 14, color: Color(0xFF654321)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static Widget _buildBulkOrderSection() {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF8B4513), // Saddle Brown
-            Color(0xFFB22222), // Firebrick
-            Color(0xFF5D2E0C), // Darker Brown
-          ],
-          stops: [0.0, 0.5, 1.0],
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFB22222).withOpacity(0.3),
-            blurRadius: 20,
-            spreadRadius: 2,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Stack(
-          children: [
-            // Decorative background circles
-            Positioned(
-              right: -30,
-              top: -30,
-              child: Container(
-                height: 150,
-                width: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.1),
+        // Text Content
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 30.h, vertical: 60.h),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Explore the best meat\nto eat in the town",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 34.h,
+                  fontWeight: FontWeight.bold,
+                  height: 1.2,
                 ),
               ),
-            ),
-            Positioned(
-              left: -50,
-              bottom: -50,
-              child: Container(
-                height: 200,
-                width: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.05),
+              SizedBox(height: 15.h),
+              Text(
+                "We're here to provide the best meat both in\nterms of quality and price.",
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 14.h,
+                  height: 1.5,
                 ),
               ),
-            ),
-
-            // Background Image Overlay (Subtle)
-            Positioned(
-              right: 10,
-              bottom: -20,
-              child: Opacity(
-                opacity: 0.15,
-                child: CustomImageView(
-                  imagePath: "assets/images/meat.jpg",
-                  height: 140,
-                  width: 140,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Glassmorphism Tag
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.star, color: Colors.amber, size: 10),
-                        SizedBox(width: 4),
-                        Text(
-                          "EXCLUSIVE",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
+              SizedBox(height: 40.h),
+              // Glassmorphic Button
+              GestureDetector(
+                onTap: () => controller.toggleOnboarding(),
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(vertical: 18.h),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFFD35400),
+                        const Color(0xFFE67E22),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      const Expanded(
-                        child: Text(
-                          "Events & Bulk Ordering",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            letterSpacing: -0.5,
-                            height: 1.0,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.celebration_rounded,
-                          color: Colors.white,
-                          size: 18,
-                        ),
+                    borderRadius: BorderRadius.circular(15.h),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFF800000).withOpacity(0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  SizedBox(
-                    width: 280,
-                    child: Text(
-                      "Elevate your celebrations with our premium catering-grade cuts.",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.85),
-                        height: 1.3,
-                        fontWeight: FontWeight.w400,
-                      ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Start Exploring",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.h,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Container(
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 2. MAIN CONTENT VIEW
+  Widget _buildMainContent(BuildContext context) {
+    return SafeArea(
+      child: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(20.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header Row
+                  _buildHeader(context),
+                  SizedBox(height: 25.h),
+                  // Search & Filters
+                  _buildGreeting(context),
+                  SizedBox(height: 20.h),
+                  // New Carousel
+                  HomeCarousel(images: controller.bannerImages),
+                  SizedBox(height: 20.h),
+                  _buildCategoryTabs(context),
+                  SizedBox(height: 25.h),
+                  // Product Grid
+                  _buildProductGrid(context),
+                  SizedBox(height: 25.h),
+                  // Deals Banner
+                  _buildDealsBanner(context),
+                  SizedBox(height: 80.h), // Space for cart summary
+                ],
+              ),
+            ),
+          ),
+          // Cart Summary (from original)
+          Obx(() {
+            final cartController = Get.find<CartController>();
+            if (cartController.totalCartItems > 0) {
+              return Positioned(
+                bottom: 16,
+                left: 16,
+                right: 16,
+                child: CartSummary(
+                  controller: cartController,
+                  onTap: () => Get.toNamed(AppRoutes.checkoutScreen),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        CircleAvatar(
+          radius: 22.h,
+          backgroundColor: Colors.grey.shade200,
+          child: Icon(CupertinoIcons.person, color: Colors.grey.shade600),
+        ),
+        Container(
+          padding: EdgeInsets.all(10.h),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: Icon(CupertinoIcons.bell, size: 22.h),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGreeting(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Hi Vaishnav ✨ 👋", // Added sparkles for premium feel
+          style: TextStyle(
+            fontSize: 16.h,
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Text(
+          "Find the best meat to eat",
+          style: TextStyle(
+            fontSize: 26.h,
+            fontWeight: FontWeight.bold,
+            color: appTheme.black_900,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategoryTabs(BuildContext context) {
+    return SizedBox(
+      height: 90.h,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: controller.categories.length,
+        itemBuilder: (context, index) {
+          String category = controller.categories[index];
+          
+          String getCategoryImageUrl(String name) {
+            String lower = name.toLowerCase();
+            if (lower.contains("chicken")) return ImageConstant.imgRawLamb;
+            if (lower.contains("lamb") || lower.contains("mutton")) return ImageConstant.imgRawLamb;
+            if (lower.contains("ribs")) return ImageConstant.imgRawRibs;
+            if (lower.contains("wagyu")) return ImageConstant.imgRawWagyu;
+            if (lower.contains("tenderloin") || lower.contains("sirloin") || lower.contains("beef") || lower.contains("steak")) return ImageConstant.imgRawTenderloin;
+            return ImageConstant.imgMeatHero;
+          }
+          
+          String imageUrl = getCategoryImageUrl(category);
+
+          return Obx(() {
+            bool isSelected = controller.selectedCategory.value == category;
+            return GestureDetector(
+              onTap: () {
+                controller.selectCategory(category);
+                HapticFeedback.lightImpact();
+              },
+              child: Container(
+                margin: EdgeInsets.only(right: 16.h, left: index == 0 ? 16.h : 0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutBack,
+                      width: isSelected ? 64.h : 46.h,
+                      height: isSelected ? 64.h : 46.h,
+                      child: ClipOval(
+                        child: CustomImageView(
+                          imagePath: imageUrl,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 6.h),
+                    Text(
+                      category,
+                      style: TextStyle(
+                        color: isSelected ? const Color(0xFF800000) : Colors.grey.shade600,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                        fontSize: 12.h,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildProductGrid(BuildContext context) {
+    final filteredProducts = controller.filteredMeatProducts;
+    if (filteredProducts.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 40.h),
+          child: Text(
+            "No items found for this category.",
+            style: TextStyle(color: Colors.grey, fontSize: 16.h),
+          ),
+        ),
+      );
+    }
+    return GridView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 15.h,
+        mainAxisSpacing: 15.h,
+        childAspectRatio: 0.65, // Increased height for comprehensive info
+      ),
+      itemCount: filteredProducts.length,
+      itemBuilder: (context, index) {
+        final product = filteredProducts[index];
+        return _buildProductCard(context, product, index);
+      },
+    );
+  }
+
+  Widget _buildProductCard(BuildContext context, dynamic product, int index) {
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed(AppRoutes.productDetailScreen, arguments: product);
+      },
+      child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.h),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image Section
+          Expanded(
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20.h)),
+                  child: CustomImageView(
+                    imagePath: product.images[0],
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                  ),
+                ),
+                // Like Button
+                Positioned(
+                  top: 10.h,
+                  right: 10.h,
+                  child: Container(
+                    padding: EdgeInsets.all(6.h),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(CupertinoIcons.heart, size: 16.h, color: Colors.grey),
+                  ),
+                ),
+                // Add Button Overlapping Image
+                Positioned(
+                  right: 12.h,
+                  bottom: -14.h, // Half outside the image
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 6.h),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6.h),
+                      border: Border.all(color: const Color(0xFF800000)),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 6,
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: ElevatedButton(
-                      onPressed: () => Get.to(() => BulkOrderScreen()),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF8B4513),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Text(
-                            "Get Private Quote",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 12,
-                            ),
-                          ),
-                          SizedBox(width: 6),
-                          Icon(Icons.arrow_forward_rounded, size: 14),
-                        ],
+                    child: Text(
+                      "ADD",
+                      style: TextStyle(
+                        fontSize: 12.h,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF800000),
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CategoryItem extends StatelessWidget {
-  final String title;
-  final String image;
-
-  const _CategoryItem({required this.title, required this.image});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 16),
-      child: Column(
-        children: [
-          // Glass morphism circle
-          Container(
-            height: 70,
-            width: 70,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
                 ),
               ],
-              border: Border.all(color: Colors.white.withOpacity(0.3)),
-            ),
-            padding: const EdgeInsets.all(12),
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.3),
-              ),
-              child: CustomImageView(imagePath: image),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF654321),
+          // Info Section
+          Padding(
+            padding: EdgeInsets.only(top: 20.h, left: 12.h, right: 12.h, bottom: 12.h), // Top padding avoids overlapping the Add button
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.title.value,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.h),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  product.unit.value,
+                  style: TextStyle(fontSize: 11.h, color: Colors.grey.shade600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 6.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      product.size.value,
+                      style: TextStyle(fontSize: 12.h, fontWeight: FontWeight.w600, color: Colors.grey.shade800),
+                    ),
+                    Row(
+                      children: [
+                        Icon(CupertinoIcons.clock, size: 12.h, color: Color(0xFF800000)),
+                        SizedBox(width: 2.h),
+                        Text(
+                          product.deliveryTime.value,
+                          style: TextStyle(fontSize: 10.h, color: Color(0xFF800000), fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  "₹${product.price.value}",
+                  style: TextStyle(
+                    fontSize: 16.h,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF2D3436),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
 }
 
-class _GridProductCard extends StatelessWidget {
-  final Map<String, dynamic> product;
-  final int productIndex;
-  final CartController controller;
-
-  const _GridProductCard({
-    required this.product,
-    required this.productIndex,
-    required this.controller,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Get.bottomSheet(
-          ProductDetailsBottomSheet(product: ProductItemModel.fromMap(product)),
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
+  Widget _buildDealsBanner(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(15.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.h),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(15.h),
+            child: CustomImageView(
+              imagePath: ImageConstant.imgMeatDeals,
+              height: 80.h,
+              width: 80.h,
+              fit: BoxFit.cover,
             ),
-          ],
-          border: Border.all(color: Colors.white.withOpacity(0.3)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 3,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(15),
-                ),
-                child: Container(
-                  color: Colors.transparent,
-                  child: Stack(
-                    children: [
-                      CustomImageView(
-                        imagePath: product["image"],
-                        fit: BoxFit.contain,
-                      ),
-                      // Gradient overlay
-                      Positioned.fill(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                              colors: [
-                                Colors.black.withOpacity(0.05),
-                                Colors.transparent,
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+          ),
+          SizedBox(width: 15.h),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Best meat deals!",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.h,
                   ),
                 ),
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          product["name"],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF654321),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          product["weight"] ?? "1 kg",
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              "\$${product['price']}",
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFFA52A2A),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Obx(() {
-                          final qty = controller.cartItems[productIndex] ?? 0;
-                          if (qty == 0) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF8B4513),
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(
-                                      0xFF8B4513,
-                                    ).withOpacity(0.3),
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: InkWell(
-                                onTap: () => controller.addToCart(productIndex),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(6),
-                                  child: Icon(
-                                    Icons.add,
-                                    size: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            );
-                          } else {
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF8B4513),
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(
-                                      0xFF8B4513,
-                                    ).withOpacity(0.3),
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  InkWell(
-                                    onTap: () =>
-                                        controller.removeFromCart(productIndex),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(4),
-                                      child: Icon(
-                                        Icons.remove,
-                                        size: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    "$qty",
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  InkWell(
-                                    onTap: () =>
-                                        controller.addToCart(productIndex),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(4),
-                                      child: Icon(
-                                        Icons.add,
-                                        size: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                        }),
-                      ],
-                    ),
-                  ],
+                SizedBox(height: 5.h),
+                Text(
+                  "We'll help you to find meat to eat with best quality.",
+                  style: TextStyle(
+                    fontSize: 12.h,
+                    color: Colors.grey.shade500,
+                  ),
+                  maxLines: 2,
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MeatProductCard extends StatelessWidget {
-  final Map<String, dynamic> product;
-  final int productIndex;
-  final CartController controller;
-
-  const _MeatProductCard({
-    required this.product,
-    required this.productIndex,
-    required this.controller,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Get.bottomSheet(
-          ProductDetailsBottomSheet(product: ProductItemModel.fromMap(product)),
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-        );
-      },
-      child: Container(
-        width: 150,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-          border: Border.all(color: Colors.white.withOpacity(0.3)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(15),
-              ),
-              child: Container(
-                height: 100,
-                width: double.infinity,
-                color: Colors.transparent,
-                child: Stack(
-                  children: [
-                    CustomImageView(
-                      imagePath: product["image"],
-                      fit: BoxFit.contain,
-                    ),
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              Colors.black.withOpacity(0.05),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          product["name"],
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF654321),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          product["weight"] ?? "1 kg",
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              "\$${product["price"]}",
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFFA52A2A),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Obx(() {
-                          final qty = controller.cartItems[productIndex] ?? 0;
-                          if (qty == 0) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF8B4513),
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(
-                                      0xFF8B4513,
-                                    ).withOpacity(0.3),
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: InkWell(
-                                onTap: () => controller.addToCart(productIndex),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(6),
-                                  child: Icon(
-                                    Icons.add,
-                                    size: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            );
-                          } else {
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF8B4513),
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(
-                                      0xFF8B4513,
-                                    ).withOpacity(0.3),
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 4,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    InkWell(
-                                      onTap: () => controller.removeFromCart(
-                                        productIndex,
-                                      ),
-                                      child: const Icon(
-                                        Icons.remove,
-                                        size: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      "$qty",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    InkWell(
-                                      onTap: () =>
-                                          controller.addToCart(productIndex),
-                                      child: const Icon(
-                                        Icons.add,
-                                        size: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }
-                        }),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+          Icon(CupertinoIcons.play_circle_fill, size: 30.h, color: Colors.grey.shade800),
+        ],
       ),
     );
   }

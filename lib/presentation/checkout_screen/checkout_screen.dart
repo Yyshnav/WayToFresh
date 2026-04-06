@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import '../category_screen/controller/cart_controller.dart';
@@ -6,6 +7,10 @@ import 'controller/address_controller.dart';
 import 'widgets/address_bottom_sheet.dart';
 import '../coupon_screen/coupon_screen.dart';
 import 'controller/coupon_controller.dart';
+import 'package:waytofresh/presentation/order_tracking_screen/order_tracking_screen.dart';
+import 'package:waytofresh/presentation/order_tracking_screen/controller/order_tracking_controller.dart';
+import 'package:waytofresh/core/utils/toast_helper.dart';
+import 'package:waytofresh/core/controllers/notification_controller.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -67,7 +72,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
             elevation: 0,
             leading: IconButton(
               icon: Icon(
-                Icons.arrow_back,
+                CupertinoIcons.back,
                 color: Theme.of(context).iconTheme.color,
               ),
               onPressed: () => Get.back(),
@@ -150,45 +155,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
 
-                      // Wishlist Section
-                      const Text(
-                        "Before you checkout",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        height: 220,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: [
-                            _buildWishlistItem(
-                              "Surf Excel",
-                              "1 kg",
-                              120,
-                              "assets/images/image 21.png",
-                            ),
-                            _buildWishlistItem(
-                              "Too Yumm",
-                              "Chips",
-                              20,
-                              "assets/images/image 25.png",
-                            ),
-                            _buildWishlistItem(
-                              "Kwality Walls",
-                              "Ice Cream",
-                              250,
-                              "assets/images/image 31.png",
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
+                   
                       const SizedBox(height: 24),
 
                       // Coupon Section
@@ -217,7 +185,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                   currentOrderValue: controller.totalCartPrice,
                                 ),
                               );
-                              // Trigger confetti if a coupon was successfully applied
+                             
                               if (_couponController.showConfetti.value) {
                                 _triggerConfetti();
                               }
@@ -233,7 +201,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: const Icon(
-                                      Icons.local_offer,
+                                      CupertinoIcons.tag,
                                       color: Colors.deepPurple,
                                       size: 20,
                                     ),
@@ -284,14 +252,14 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                         onPressed: () =>
                                             _couponController.removeCoupon(),
                                         icon: const Icon(
-                                          Icons.close,
+                                          CupertinoIcons.xmark,
                                           color: Colors.grey,
                                           size: 20,
                                         ),
                                       );
                                     }
                                     return const Icon(
-                                      Icons.arrow_forward_ios,
+                                      CupertinoIcons.chevron_right,
                                       size: 16,
                                       color: Colors.grey,
                                     );
@@ -342,7 +310,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                     () => Row(
                                       children: [
                                         const Icon(
-                                          Icons.article_outlined,
+                                          CupertinoIcons.doc_text,
                                           size: 16,
                                           color: Colors.grey,
                                         ),
@@ -368,7 +336,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                   Row(
                                     children: [
                                       const Icon(
-                                        Icons.moped,
+                                        CupertinoIcons.bus,
                                         size: 16,
                                         color: Colors.grey,
                                       ),
@@ -379,7 +347,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                       ),
                                       const SizedBox(width: 4),
                                       Icon(
-                                        Icons.info_outline,
+                                        CupertinoIcons.info,
                                         size: 14,
                                         color: Colors.grey.shade400,
                                       ),
@@ -410,7 +378,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                   Row(
                                     children: [
                                       const Icon(
-                                        Icons.shopping_bag_outlined,
+                                        CupertinoIcons.bag,
                                         size: 16,
                                         color: Colors.grey,
                                       ),
@@ -421,7 +389,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                       ),
                                       const SizedBox(width: 4),
                                       Icon(
-                                        Icons.info_outline,
+                                        CupertinoIcons.info,
                                         size: 14,
                                         color: Colors.grey.shade400,
                                       ),
@@ -441,7 +409,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                   Row(
                                     children: [
                                       const Icon(
-                                        Icons.redeem,
+                                        CupertinoIcons.gift,
                                         size: 16,
                                         color: Colors.grey,
                                       ),
@@ -469,7 +437,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                       return Row(
                                         children: [
                                           const Icon(
-                                            Icons.discount,
+                                            CupertinoIcons.percent,
                                             size: 16,
                                             color: Colors.green,
                                           ),
@@ -610,7 +578,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Icon(
-                                Icons.volunteer_activism,
+                                CupertinoIcons.heart_fill,
                                 color: Colors.orange,
                                 size: 24,
                               ),
@@ -645,21 +613,18 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                             ),
                             const SizedBox(width: 8),
                             const Icon(
-                              Icons.check_box_outline_blank,
+                              CupertinoIcons.square,
                               color: Colors.green,
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 24),
 
                       // Footer / Cancellation Policy
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? Colors.grey.shade800
-                              : Colors.grey.shade100,
+                          color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
@@ -685,8 +650,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                           ],
                         ),
                       ),
-
-                      const SizedBox(height: 100), // Space for bottom bar
+                      const SizedBox(height: 100),
                     ],
                   ),
                 ),
@@ -695,7 +659,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
           ),
           bottomNavigationBar: _buildBottomBar(context, controller),
         ),
-        // Lottie Animation
         if (_showLottie)
           Align(
             alignment: Alignment.center,
@@ -718,73 +681,78 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   Widget _buildCartItem(
     CartController controller,
     int index,
-    Map<String, dynamic> product,
+    dynamic product,
     int quantity,
     bool isLast,
   ) {
-    return Container(
-      margin: EdgeInsets.only(bottom: isLast ? 0 : 16),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image
           Container(
-            height: 60,
-            width: 60,
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade100),
             ),
-            child: product["image"] != null
-                ? Image.asset(product["image"], fit: BoxFit.contain)
-                : const Icon(Icons.image, color: Colors.grey),
+            child: Image.asset(
+              product["imagePath"] ?? "assets/images/image 21.png",
+              width: 50,
+              height: 50,
+              fit: BoxFit.contain,
+              errorBuilder:
+                  (_, __, ___) => const Icon(CupertinoIcons.bag),
+            ),
           ),
           const SizedBox(width: 12),
-          // Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product["name"],
+                  product["name"] ?? "Product",
                   style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
                 ),
                 Text(
-                  product["weight"],
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  product["weight"] ?? "",
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 12,
+                  ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  "Move to wishlist",
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.black54,
-                    decoration: TextDecoration.underline,
-                    decorationStyle: TextDecorationStyle.dashed,
+                Text(
+                  "₹${product["price"]}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
                 ),
               ],
             ),
           ),
-          // Counter & Price
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.green,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 child: Row(
                   children: [
                     GestureDetector(
                       onTap: () => controller.removeFromCart(index),
                       child: const Icon(
-                        Icons.remove,
+                        CupertinoIcons.minus,
                         color: Colors.white,
                         size: 14,
                       ),
@@ -795,14 +763,14 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        fontSize: 13,
                       ),
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
                       onTap: () => controller.addToCart(index),
                       child: const Icon(
-                        Icons.add,
+                        CupertinoIcons.add,
                         color: Colors.white,
                         size: 14,
                       ),
@@ -825,106 +793,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     );
   }
 
-  Widget _buildWishlistItem(
-    String name,
-    String weight,
-    int price,
-    String imagePath,
-  ) {
-    return Container(
-      width: 140, // Increased width
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Center(
-                  child: Image.asset(
-                    imagePath,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Icon(Icons.local_offer),
-                  ),
-                ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.favorite_border,
-                      size: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-          ),
-          Text(
-            weight,
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "₹$price",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.green),
-                  borderRadius: BorderRadius.circular(6),
-                  color: Colors.green.shade50,
-                ),
-                child: const Text(
-                  "ADD",
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildBottomBar(BuildContext context, CartController controller) {
     return Container(
@@ -954,7 +822,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                     border: Border.all(color: Colors.grey.shade200),
                   ),
                   child: const Icon(
-                    Icons.home_rounded,
+                    CupertinoIcons.home,
                     color: Color(0xFFFFC107), // Yellow home icon
                     size: 24,
                   ),
@@ -966,14 +834,14 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                     children: [
                       Row(
                         children: [
-                          Text(
+                          const Text(
                             "Delivering to Home",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
                             ),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           InkWell(
                             onTap: () {
                               Get.bottomSheet(
@@ -981,7 +849,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                 isScrollControlled: true,
                               );
                             },
-                            child: Text(
+                            child: const Text(
                               "Change",
                               style: TextStyle(
                                 color: Colors.green,
@@ -1026,10 +894,15 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                             color: Colors.grey.shade800,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
-                            Icons.currency_rupee,
-                            size: 10,
-                            color: Colors.white,
+                          child: const Center(
+                            child: Text(
+                              "₹",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -1061,13 +934,26 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
+                      // ✅ Start Real-time Tracking Simulation
+                      final trackingController = Get.find<OrderTrackingController>();
+                      trackingController.startTracking();
+
+                      // ✅ Trigger Notifications
+                      final notif = Get.find<NotificationController>();
+                      notif.notifyPaymentSuccess();
+                      notif.notifyOrderPlaced();
+                      
                       // Place order logic
-                      Get.snackbar(
-                        "Success",
-                        "Order Placed Successfully!",
-                        backgroundColor: Colors.green,
-                        colorText: Colors.white,
-                      );
+                      ToastHelper.showSuccess("Order Placed Successfully!");
+
+                      // Optionally clear cart
+                      final cartController = Get.find<CartController>();
+                      cartController.clearCart();
+
+                      // Navigate to Tracking Screen
+                      Future.delayed(const Duration(seconds: 1), () {
+                        Get.to(() => const OrderTrackingScreen());
+                      });
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
@@ -1122,7 +1008,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Icon(Icons.arrow_right, size: 24),
+                            Icon(CupertinoIcons.chevron_right, size: 24),
                           ],
                         ),
                       ],
@@ -1133,51 +1019,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildBillRow(
-    String label,
-    String value, {
-    bool isFree = false,
-    String? originalPrice,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: Colors.black54),
-          ),
-          Row(
-            children: [
-              if (originalPrice != null) ...[
-                Text(
-                  originalPrice,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                    decoration: TextDecoration.lineThrough,
-                  ),
-                ),
-                const SizedBox(width: 6),
-              ],
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isFree ? FontWeight.bold : FontWeight.w500,
-                  color: isFree
-                      ? Colors.green
-                      : Theme.of(context).textTheme.bodyLarge?.color,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -1202,5 +1043,9 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         }
       });
     }
+  }
+
+  Widget _buildWishlistItem(String name, String weight, int price, String imagePath) {
+    return const SizedBox.shrink();
   }
 }

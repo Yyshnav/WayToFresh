@@ -1,0 +1,28 @@
+﻿
+analysis_full.txt:72:  
+error - Target of URI 
+doesn't exist: '../../r
+outes/app_routes.dart' 
+- lib\presentation\home
+screen\controller\voice
+_search_controller.dart
+:4:8 - 
+uri_does_not_exist
+analysis_full.txt:74:  
+error - Undefined name 
+'AppRoutes' - lib\prese
+ntation\homescreen\cont
+roller\voice_search_con
+troller.dart:96:17 - 
+undefined_identifier
+analysis_full.txt:123: 
+ error - The getter 
+'gray900' isn't 
+defined for the type 
+'LightCodeColors' - lib
+\presentation\homescree
+n\widgets\voice_search_
+bottom_sheet.dart:20:27
+ - undefined_getter
+
+

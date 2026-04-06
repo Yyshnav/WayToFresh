@@ -10,6 +10,12 @@ class ProductItemModel {
   Rx<String> shelfLife;
   Rx<String> manufacturerName;
   Rx<int> category;
+  Rx<double> rating;
+  Rx<int> reviewCount;
+  Rx<String> energy;
+  Rx<String> size;
+  Rx<bool> isVeg;
+  Rx<String> filterCategoryName;
 
   ProductItemModel({
     required String title,
@@ -21,6 +27,12 @@ class ProductItemModel {
     String? shelfLife,
     String? manufacturerName,
     int? category,
+    double? rating,
+    int? reviewCount,
+    String? energy,
+    String? size,
+    bool? isVeg,
+    String? filterCategoryName,
   }) : title = title.obs,
        images = images.obs,
        deliveryTime = deliveryTime.obs,
@@ -32,7 +44,13 @@ class ProductItemModel {
                .obs,
        shelfLife = (shelfLife ?? "5 days").obs,
        manufacturerName = (manufacturerName ?? "WayToFresh").obs,
-       category = (category ?? 0).obs;
+       category = (category ?? 0).obs,
+       rating = (rating ?? 4.5).obs,
+       reviewCount = (reviewCount ?? 12).obs,
+       energy = (energy ?? "450 KCal").obs,
+       size = (size ?? "Medium").obs,
+       isVeg = (isVeg ?? false).obs,
+       filterCategoryName = (filterCategoryName ?? "All").obs;
 
   factory ProductItemModel.fromMap(Map<String, dynamic> map) {
     return ProductItemModel(
@@ -45,6 +63,8 @@ class ProductItemModel {
       shelfLife: map['shelfLife'],
       manufacturerName: map['manufacturerName'],
       category: map['category'],
+      isVeg: map['isVeg'] as bool? ?? false,
+      filterCategoryName: map['categoryName'] as String? ?? 'All',
     );
   }
 

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'dart:ui'; // Required for BackdropFilter
+import '../../Widgets/animate_fade_slide.dart';
+import 'dart:ui';
 
 class BulkOrderScreen extends StatefulWidget {
   const BulkOrderScreen({Key? key}) : super(key: key);
@@ -31,10 +32,10 @@ class _BulkOrderScreenState extends State<BulkOrderScreen> {
     "BBQ Event",
   ];
   final List<Map<String, dynamic>> _meatCategories = [
-    {'name': 'Mixed Grill', 'icon': Icons.outdoor_grill_outlined},
-    {'name': 'Premium Beef', 'icon': Icons.outdoor_grill_outlined},
-    {'name': 'Lamb/Mutton', 'icon': Icons.outdoor_grill_outlined},
-    {'name': 'Poultry', 'icon': Icons.outdoor_grill_outlined},
+    {'name': 'Mixed Grill', 'icon': CupertinoIcons.flame},
+    {'name': 'Premium Beef', 'icon': CupertinoIcons.flame},
+    {'name': 'Lamb/Mutton', 'icon': CupertinoIcons.flame},
+    {'name': 'Poultry', 'icon': CupertinoIcons.flame},
   ];
 
   @override
@@ -55,31 +56,57 @@ class _BulkOrderScreenState extends State<BulkOrderScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSectionLabel("ESTIMATION CALCULATOR"),
+                      AnimateFadeSlide(
+                        delay: const Duration(milliseconds: 100),
+                        child: _buildSectionLabel("ESTIMATION CALCULATOR"),
+                      ),
                       const SizedBox(height: 12),
-                      _buildCalculatorCard(estimatedKg),
+                      AnimateFadeSlide(
+                        delay: const Duration(milliseconds: 200),
+                        child: _buildCalculatorCard(estimatedKg),
+                      ),
                       const SizedBox(height: 32),
-
-                      _buildSectionLabel("EVENT SETTINGS"),
+                      AnimateFadeSlide(
+                        delay: const Duration(milliseconds: 300),
+                        child: _buildSectionLabel("EVENT SETTINGS"),
+                      ),
                       const SizedBox(height: 12),
-                      _buildHorizontalChips(),
+                      AnimateFadeSlide(
+                        delay: const Duration(milliseconds: 400),
+                        child: _buildHorizontalChips(),
+                      ),
                       const SizedBox(height: 32),
-
-                      _buildSectionLabel("MEAT SELECTION"),
+                      AnimateFadeSlide(
+                        delay: const Duration(milliseconds: 500),
+                        child: _buildSectionLabel("MEAT SELECTION"),
+                      ),
                       const SizedBox(height: 12),
-                      _buildMeatGrid(),
+                      AnimateFadeSlide(
+                        delay: const Duration(milliseconds: 600),
+                        child: _buildMeatGrid(),
+                      ),
                       const SizedBox(height: 32),
-
-                      _buildSectionLabel("LOGISTICS"),
+                      AnimateFadeSlide(
+                        delay: const Duration(milliseconds: 700),
+                        child: _buildSectionLabel("LOGISTICS"),
+                      ),
                       const SizedBox(height: 12),
-                      _buildUnifiedFormCard(),
+                      AnimateFadeSlide(
+                        delay: const Duration(milliseconds: 800),
+                        child: _buildUnifiedFormCard(),
+                      ),
                     ],
                   ),
                 ),
               ),
             ],
           ),
-          _buildFloatingBottomBar(estimatedKg),
+          AnimateFadeSlide(
+            direction: Direction.vertical,
+            offset: 50,
+            delay: const Duration(milliseconds: 1000),
+            child: _buildFloatingBottomBar(estimatedKg),
+          ),
         ],
       ),
     );
@@ -114,7 +141,7 @@ class _BulkOrderScreenState extends State<BulkOrderScreen> {
             child: Container(
               color: Colors.white.withOpacity(0.2),
               child: IconButton(
-                icon: const Icon(Icons.chevron_left, color: Colors.white),
+                icon: const Icon(CupertinoIcons.chevron_left, color: Colors.white),
                 onPressed: () => Get.back(),
               ),
             ),
@@ -342,18 +369,18 @@ class _BulkOrderScreenState extends State<BulkOrderScreen> {
       child: Column(
         children: [
           _buildFormTile(
-            Icons.calendar_month_outlined,
+            CupertinoIcons.calendar,
             "Preferred Date",
             controller: _dateController,
             isLast: false,
           ),
           _buildFormTile(
-            Icons.location_on_outlined,
+            CupertinoIcons.location,
             "Delivery Location",
             isLast: false,
           ),
           _buildFormTile(
-            Icons.edit_note_outlined,
+            CupertinoIcons.pencil,
             "Special Butchery Instructions",
             isLast: true,
           ),

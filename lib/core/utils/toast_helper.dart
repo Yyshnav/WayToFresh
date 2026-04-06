@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ToastHelper {
-  static final GlobalKey<ScaffoldMessengerState> messengerKey =
-      GlobalKey<ScaffoldMessengerState>();
-
   static void showSuccess(String message, {String? title}) {
     _showToast(
       message,
       title: title ?? "Success",
-      backgroundColor: Colors.green.shade600,
+      backgroundColor: const Color(0xFF07575B),
       icon: Icons.check_circle_outline,
     );
   }
@@ -46,44 +44,26 @@ class ToastHelper {
     required Color backgroundColor,
     required IconData icon,
   }) {
-    final messenger = messengerKey.currentState;
-    if (messenger == null) return;
-
-    messenger.clearSnackBars();
-    messenger.showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(icon, color: Colors.white, size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    message,
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
-                ],
-              ),
-            ),
-          ],
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: backgroundColor,
+      colorText: Colors.white,
+      borderRadius: 16,
+      margin: const EdgeInsets.all(12),
+      duration: const Duration(seconds: 3),
+      icon: Icon(icon, color: Colors.white, size: 28),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
         ),
-        backgroundColor: backgroundColor,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: const Duration(seconds: 3),
-      ),
+      ],
+      shouldIconPulse: true,
+      dismissDirection: DismissDirection.horizontal,
+      leftBarIndicatorColor: Colors.white.withOpacity(0.3),
     );
   }
 }

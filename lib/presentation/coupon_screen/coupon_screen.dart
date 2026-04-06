@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import '../../data/models/coupon_model.dart';
 import '../checkout_screen/controller/coupon_controller.dart';
@@ -23,7 +24,7 @@ class CouponScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(CupertinoIcons.back, color: Colors.black),
           onPressed: () => Get.back(),
         ),
       ),

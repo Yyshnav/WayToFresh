@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import '../../../data/models/coupon_model.dart';
 
@@ -76,7 +77,7 @@ class CouponController extends GetxController {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.info_outline, color: Colors.white),
+              const Icon(CupertinoIcons.info, color: Colors.white),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -149,7 +150,7 @@ class CouponController extends GetxController {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.error_outline, color: Colors.white),
+              const Icon(CupertinoIcons.exclamationmark_circle, color: Colors.white),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

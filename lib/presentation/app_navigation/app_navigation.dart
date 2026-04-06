@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get_state_manager/src/simple/get_view.dart';
 import 'package:waytofresh/core/app_expote.dart';
 import 'package:waytofresh/presentation/app_navigation/app_navigationcontroller.dart/controller.dart';
@@ -71,7 +72,7 @@ class AppNavigationScreen extends GetWidget<AppNavigationController> {
                     color: Color(0XFF000000),
                   ),
                 ),
-                Icon(Icons.arrow_forward, color: Color(0XFF343330)),
+                Icon(CupertinoIcons.arrow_right, color: Color(0XFF343330)),
               ],
             ),
             SizedBox(height: 10.h),

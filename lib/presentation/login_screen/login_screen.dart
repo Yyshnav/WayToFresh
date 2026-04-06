@@ -4,7 +4,6 @@ import 'package:waytofresh/core/app_expote.dart';
 import 'package:waytofresh/theme/theme_helper.dart';
 import 'package:waytofresh/widgets/custom_image_view.dart';
 import 'controller/login_controller.dart';
-import 'dart:math';
 
 class LoginScreen extends GetView<LoginController> {
   const LoginScreen({super.key});
@@ -12,17 +11,11 @@ class LoginScreen extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
       body: Container(
         height: Get.height,
         width: Get.width,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFA1D6E0), Color(0xFF1995AD), Color(0xFF07575B)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        color: Colors.white,
         child: SafeArea(
           child: Column(
             children: [
@@ -38,9 +31,7 @@ class LoginScreen extends GetView<LoginController> {
                     TextButton(
                       onPressed: controller.onSkipTap,
                       style: TextButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(
-                          0.2,
-                        ), // Glassy look
+                        backgroundColor: const Color(0xFF0066FF).withOpacity(0.1), // Glassy blue look
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -51,12 +42,12 @@ class LoginScreen extends GetView<LoginController> {
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      child: Text(
+                      child: const Text(
                         'Skip login',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 12,
-                          color: Colors.white,
+                          color: Color(0xFF0066FF),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -69,56 +60,23 @@ class LoginScreen extends GetView<LoginController> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      // Grid Background (Simulated)
+                      // Vector Background in Top Section (Replacing Grid)
                       SizedBox(
                         height: Get.height * 0.45,
                         width: double.infinity,
                         child: Stack(
                           children: [
-                            // Background Grid
-                            GridView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 5, // 5 columns
-                                    childAspectRatio: 0.8,
-                                    crossAxisSpacing: 16,
-                                    mainAxisSpacing: 16,
-                                  ),
-                              itemCount: 20,
-                              padding: const EdgeInsets.all(16),
-                              itemBuilder: (context, index) {
-                                // Randomly pick an image or color placeholder
-                                // Using local assets if available or just placeholders
-                                final opacity =
-                                    1.0 -
-                                    (index / 20.0); // Simple Fade effect logic
-                                return Opacity(
-                                  opacity:
-                                      0.2 +
-                                      (Random().nextDouble() *
-                                          0.3), // Lower opacity for blending
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(
-                                        0.3,
-                                      ), // Glassy tiles
-                                      borderRadius: BorderRadius.circular(12),
-                                      image: DecorationImage(
-                                        image: AssetImage(
-                                          'assets/images/image_${(index % 5) + 50}.png',
-                                        ), // Just assuming some assets exist or fallback
-                                        onError:
-                                            (
-                                              exception,
-                                              stackTrace,
-                                            ) {}, // Safe fail
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
+                            // White background for top section
+                            Container(
+                              color: Colors.white,
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
+
+                            // Vector background replacing the old grid
+                            const Opacity(
+                              opacity: 0.15,
+                              child: AnimatedVectorBackground(),
                             ),
 
                             // Gradient Overlay at bottom to fade into background
@@ -133,12 +91,8 @@ class LoginScreen extends GetView<LoginController> {
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
                                     colors: [
-                                      Colors.transparent,
-                                      // Fade to the bottom color of the background gradient approx
-                                      // Or just transparent to allow full bleed,
-                                      // but the grid needs to fade out?
-                                      // Let's fade to the dominant bottom color or just transparent opacity
-                                      Color(0xFF07575B).withOpacity(0.8),
+                                      Colors.white.withOpacity(0.0),
+                                      Colors.white,
                                     ],
                                   ),
                                 ),
@@ -151,15 +105,13 @@ class LoginScreen extends GetView<LoginController> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Container(
-                                    width:
-                                        80, // Increased width for longer text
-                                    height: 80, // Increased height
+                                    width: 100, 
+                                    height: 100,
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: Colors
-                                          .white, // White box for logo on colored bg
-                                      borderRadius: BorderRadius.circular(12),
-                                      boxShadow: [
+                                      color: Colors.white, // White box for logo
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: const [
                                         BoxShadow(
                                           color: Colors.black12,
                                           blurRadius: 10,
@@ -168,27 +120,20 @@ class LoginScreen extends GetView<LoginController> {
                                       ],
                                     ),
                                     child: Center(
-                                      child: Text(
-                                        "Way To\nFresh",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(
-                                            0xFF1995AD,
-                                          ), // Colored text
-                                        ),
+                                      child: Image.asset(
+                                        'assets/images/logoway.png',
+                                        fit: BoxFit.contain,
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 16),
-                                  Text(
+                                  const Text(
                                     "Buy Fresh, Eat Fresh",
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Poppins',
-                                      color: Colors.white,
+                                      color: Colors.black87, // Changed from white to black
                                     ),
                                   ),
                                   const SizedBox(height: 8),
@@ -197,7 +142,7 @@ class LoginScreen extends GetView<LoginController> {
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontFamily: 'Poppins',
-                                      color: Colors.white70,
+                                      color: Colors.grey.shade600, // Changed from white70 to grey
                                     ),
                                   ),
                                 ],
@@ -206,7 +151,6 @@ class LoginScreen extends GetView<LoginController> {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 30),
 
                       // Phone Input Field
@@ -217,15 +161,7 @@ class LoginScreen extends GetView<LoginController> {
                             2,
                           ), // Gradient Divider Width
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFFA1D6E0),
-                                Color(0xFF1995AD),
-                                Color(0xFF07575B),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
+                            gradient: appTheme.primaryGradient,
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: Container(
@@ -291,15 +227,7 @@ class LoginScreen extends GetView<LoginController> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
                               gradient: controller.isPhoneValid.value
-                                  ? LinearGradient(
-                                      colors: [
-                                        Color(0xFFA1D6E0),
-                                        Color(0xFF1995AD),
-                                        Color(0xFF07575B),
-                                      ],
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                    )
+                                  ? appTheme.primaryGradient
                                   : null,
                               color: controller.isPhoneValid.value
                                   ? null
@@ -348,6 +276,58 @@ class LoginScreen extends GetView<LoginController> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class AnimatedVectorBackground extends StatefulWidget {
+  const AnimatedVectorBackground({super.key});
+
+  @override
+  State<AnimatedVectorBackground> createState() => _AnimatedVectorBackgroundState();
+}
+
+class _AnimatedVectorBackgroundState extends State<AnimatedVectorBackground> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // 12 seconds loop duration for moderate speed
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 12),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: 1.8, // Reduced from 3.5 to half the size
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: const AssetImage('assets/images/splash_bg.png'),
+                repeat: ImageRepeat.repeat,
+                scale: 1.0, // Base scale
+                // Shifts the image diagonally creating a seamless panning effect
+                alignment: FractionalOffset(-_controller.value, -_controller.value),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

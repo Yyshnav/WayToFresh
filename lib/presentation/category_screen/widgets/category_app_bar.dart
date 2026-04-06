@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import '../controller/cart_controller.dart';
 
@@ -40,14 +41,14 @@ class CategoryAppBar extends StatelessWidget {
           ),
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.search, size: 24, color: Colors.grey),
+            icon: const Icon(CupertinoIcons.search, size: 24, color: Colors.grey),
           ),
           Stack(
             children: [
               IconButton(
                 onPressed: () {},
                 icon: const Icon(
-                  Icons.notifications_none,
+                  CupertinoIcons.bell,
                   size: 24,
                   color: Colors.grey,
                 ),

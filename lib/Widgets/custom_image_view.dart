@@ -15,7 +15,7 @@ extension ImageTypeExtension on String {
       return ImageType.network;
     } else if (this.endsWith('.svg')) {
       return ImageType.svg;
-    } else if (this.startsWith('file://')) {
+    } else if (this.startsWith('file://') || this.contains(':\\') || this.startsWith('/')) {
       return ImageType.file;
     } else {
       return ImageType.png;
@@ -38,6 +38,8 @@ class CustomImageView extends StatelessWidget {
     this.margin,
     this.border,
     this.placeHolder,
+    this.cacheWidth,
+    this.cacheHeight,
   }) {
     if (imagePath == null || imagePath!.isEmpty) {
       imagePath = ImageConstant.imgImageNotFound;
@@ -64,8 +66,10 @@ class CustomImageView extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
 
   final BorderRadius? radius;
-
   final BoxBorder? border;
+
+  final int? cacheWidth;
+  final int? cacheHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -112,6 +116,8 @@ class CustomImageView extends StatelessWidget {
         height: height,
         width: width,
         fit: fit ?? BoxFit.cover,
+        cacheWidth: cacheWidth,
+        cacheHeight: cacheHeight,
       );
     }
 
@@ -140,6 +146,8 @@ class CustomImageView extends StatelessWidget {
           width: width,
           fit: fit ?? BoxFit.cover,
           color: color,
+          cacheWidth: cacheWidth,
+          cacheHeight: cacheHeight,
         );
       case ImageType.networkSvg:
         return SvgPicture.network(
@@ -161,6 +169,8 @@ class CustomImageView extends StatelessWidget {
           fit: fit,
           imageUrl: imagePath!,
           color: color,
+          memCacheWidth: cacheWidth,
+          memCacheHeight: cacheHeight,
           placeholder: (context, url) => Container(
             height: 30,
             width: 30,
@@ -174,6 +184,8 @@ class CustomImageView extends StatelessWidget {
             height: height,
             width: width,
             fit: fit ?? BoxFit.cover,
+            cacheWidth: cacheWidth,
+            cacheHeight: cacheHeight,
           ),
         );
       case ImageType.png:
@@ -184,6 +196,8 @@ class CustomImageView extends StatelessWidget {
           width: width,
           fit: fit ?? BoxFit.cover,
           color: color,
+          cacheWidth: cacheWidth,
+          cacheHeight: cacheHeight,
         );
     }
   }

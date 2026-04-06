@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:waytofresh/core/utils/image_constants.dart';
-import 'package:waytofresh/presentation/category_screen/cat.dart';
 import 'package:waytofresh/presentation/homescreen/homecontroller.dart';
 import 'package:waytofresh/presentation/category_screen/categoryscreen.dart'
     as grid;

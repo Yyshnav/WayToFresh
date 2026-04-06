@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'controller/cart_controller.dart';
 import 'widgets/category_item.dart';
@@ -18,7 +19,7 @@ class CatScreen extends StatefulWidget {
 }
 
 class _CatScreenState extends State<CatScreen> {
-  final CartController controller = Get.put(CartController());
+  final CartController controller = Get.find<CartController>();
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -196,7 +197,7 @@ class _CatScreenState extends State<CatScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.inventory_2_outlined, size: 50, color: Colors.grey),
+              Icon(CupertinoIcons.archivebox, size: 50, color: Colors.grey),
               SizedBox(height: 8),
               Text(
                 "No products available",

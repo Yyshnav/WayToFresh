@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:waytofresh/core/app_expote.dart';
 import 'package:waytofresh/core/utils/image_constants.dart';
 import 'package:waytofresh/presentation/homescreen/product_item_model.dart';
 import 'package:waytofresh/theme/text_style_helper.dart';
-import '../../../../widgets/custom_image_view.dart';
-import '../presentation/category_screen/controller/cart_controller.dart';
-import 'product_details_bottom_sheet.dart';
+import 'package:waytofresh/widgets/custom_image_view.dart';
+import 'package:waytofresh/presentation/category_screen/controller/cart_controller.dart';
+import 'animate_fade_slide.dart';
+import 'package:waytofresh/widgets/product_details_bottom_sheet.dart';
 
 class ProductItemWidget extends StatefulWidget {
   final ProductItemModel product;
+  final Duration delay;
 
-  const ProductItemWidget({Key? key, required this.product}) : super(key: key);
+  const ProductItemWidget({
+    Key? key,
+    required this.product,
+    this.delay = Duration.zero,
+  }) : super(key: key);
 
   @override
   State<ProductItemWidget> createState() => _ProductItemWidgetState();
@@ -22,16 +29,14 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // Determine product index in CartController
+    return AnimateFadeSlide(delay: widget.delay, child: _buildContent(context));
+  }
+
+  Widget _buildContent(BuildContext context) {
     final cartController = Get.find<CartController>();
-    // Normalize string for comparison (remove newlines for safer match if needed, but here we try exact)
-    int productIndex = cartController.allProducts.indexWhere(
-      (p) => p['name'] == widget.product.title.value,
-    );
-    // If not found, we could fallback or disable.
-    // For demo purposes, if not found, we might fallback to 0 or handled gracefully.
-    // Given we added items to CartController, it should matching.
-    if (productIndex == -1) productIndex = 0;
+
+    // Match or Register product dynamically
+    final int productIndex = cartController.getOrRegisterProduct(widget.product);
 
     return GestureDetector(
       onTap: () {
@@ -42,8 +47,8 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
         );
       },
       child: Container(
-        width: 95.h,
-        margin: EdgeInsets.symmetric(horizontal: 6.h, vertical: 5.h),
+        width: double.infinity,
+        margin: EdgeInsets.symmetric(horizontal: 2.h, vertical: 5.h),
         padding: EdgeInsets.all(5.h),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
@@ -64,7 +69,7 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
           children: [
             /// 🔶 Product Image + ADD / Qty Selector
             Container(
-              height: 80.h,
+              height: 64.h,
               width: double.infinity,
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
@@ -74,12 +79,12 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
                 children: [
                   CustomImageView(
                     imagePath: widget.product.image,
-                    height: 80.h,
+                    height: 64.h,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
 
-                  /// ✅ ADD / Quantity Selector
+                  /// ✅ ADD / Quantity Selector (SMALL)
                   Positioned(
                     bottom: 4.h,
                     right: 4.h,
@@ -91,48 +96,51 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
                             ScaleTransition(scale: animation, child: child),
                         child: qty == 0
                             ? GestureDetector(
-                                key: ValueKey('add_button'),
+                                key: const ValueKey('add_button'),
                                 onTap: () {
                                   cartController.addToCart(productIndex);
                                 },
                                 child: Container(
-                                  height: 28.h,
-                                  width: 55.h,
+                                  height: 22.h,
+                                  width: 22.h,
                                   decoration: BoxDecoration(
-                                    color: appTheme.white_A700,
-                                    border: Border.all(
-                                      color: appTheme.green_600,
-                                      width: 1.2.h,
-                                    ),
-                                    borderRadius: BorderRadius.circular(6.h),
+                                    color: appTheme.green_600,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: appTheme.green_600.withOpacity(0.3),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      'ADD',
-                                      style: TextStyleHelper
-                                          .instance
-                                          .label10SemiBoldPoppins
-                                          .copyWith(
-                                            color: appTheme.green_600,
-                                            fontSize: 11.fSize,
-                                          ),
-                                    ),
+                                  child: Icon(
+                                    CupertinoIcons.add,
+                                    color: Colors.white,
+                                    size: 14.h,
                                   ),
                                 ),
                               )
                             : Container(
-                                key: ValueKey('qty_selector'),
-                                height: 30.h,
-                                width: 75.h,
+                                key: const ValueKey('qty_selector'),
+                                height: 22.h,
+                                width: 62.h,
                                 decoration: BoxDecoration(
                                   color: appTheme.white_A700,
                                   border: Border.all(
                                     color: appTheme.green_600,
-                                    width: 1.2.h,
+                                    width: 1.h,
                                   ),
-                                  borderRadius: BorderRadius.circular(6.h),
+                                  borderRadius: BorderRadius.circular(11.h), // Pill shape
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
-                                padding: EdgeInsets.symmetric(horizontal: 5.h),
+                                padding: EdgeInsets.symmetric(horizontal: 4.h),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -144,8 +152,8 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
                                         );
                                       },
                                       child: Icon(
-                                        Icons.remove,
-                                        size: 16.h,
+                                        CupertinoIcons.minus,
+                                        size: 12.h,
                                         color: appTheme.green_600,
                                       ),
                                     ),
@@ -156,7 +164,7 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
                                           .label10SemiBoldPoppins
                                           .copyWith(
                                             color: appTheme.green_600,
-                                            fontSize: 11.fSize,
+                                            fontSize: 9.fSize,
                                           ),
                                     ),
                                     GestureDetector(
@@ -164,8 +172,8 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
                                         cartController.addToCart(productIndex);
                                       },
                                       child: Icon(
-                                        Icons.add,
-                                        size: 16.h,
+                                        CupertinoIcons.add,
+                                        size: 12.h,
                                         color: appTheme.green_600,
                                       ),
                                     ),

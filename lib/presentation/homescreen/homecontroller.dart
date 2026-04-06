@@ -14,8 +14,7 @@ class HomeController extends GetxController {
 
   // ✅ Added for bottom bar hide/show animation
   RxBool hideBottomBar = false.obs;
-  bool hasShownAddressSheet =
-      false; // Flag to track if address sheet has been shown
+  bool hasShownAddressSheet = false;
 
   RxList<ProductItemModel> dailyEssentials = <ProductItemModel>[].obs;
   RxList<ProductItemModel> trendingProducts = <ProductItemModel>[].obs;

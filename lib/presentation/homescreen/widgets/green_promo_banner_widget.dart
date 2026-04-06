@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class GreenPromoBannerWidget extends StatelessWidget {
   const GreenPromoBannerWidget({super.key});
@@ -44,7 +45,7 @@ class GreenPromoBannerWidget extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.all(4),
                                 child: const Icon(
-                                  Icons.qr_code,
+                                  CupertinoIcons.qrcode,
                                   color: Colors.white,
                                   size: 36,
                                 ),

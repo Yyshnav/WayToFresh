@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'controller/profile_controller.dart';
 
@@ -17,12 +18,11 @@ class ProfileScreen extends GetView<ProfileController> {
             width: double.infinity,
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
-              // We could add a background image or pattern here if needed
             ),
             child: SafeArea(
               child: Column(
                 mainAxisAlignment:
-                    MainAxisAlignment.center, // Centered Vertically
+                    MainAxisAlignment.center, 
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -46,7 +46,7 @@ class ProfileScreen extends GetView<ProfileController> {
                           backgroundColor: Colors.white24,
                           child: IconButton(
                             icon: const Icon(
-                              Icons.more_vert,
+                              CupertinoIcons.ellipsis,
                               color: Colors.white,
                             ),
                             onPressed: () {},
@@ -80,7 +80,7 @@ class ProfileScreen extends GetView<ProfileController> {
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
-                          Icons.edit,
+                          CupertinoIcons.pencil,
                           color: Colors.white,
                           size: 16,
                         ),
@@ -153,50 +153,43 @@ class ProfileScreen extends GetView<ProfileController> {
 
                     _buildMenuItem(
                       context,
-                      Icons.person_outline,
+                      CupertinoIcons.person,
                       "My Profile",
                       Colors.transparent,
                       Theme.of(context).iconTheme.color!,
                     ),
                     _buildMenuItem(
                       context,
-                      Icons.shopping_bag_outlined,
+                      CupertinoIcons.bag,
                       "My Orders",
                       Colors.transparent,
                       Theme.of(context).iconTheme.color!,
                     ),
                     _buildMenuItem(
                       context,
-                      Icons.refresh,
-                      "Refund",
-                      Colors.transparent,
-                      Theme.of(context).iconTheme.color!,
-                    ),
-                    _buildMenuItem(
-                      context,
-                      Icons.lock_outline,
-                      "Change Password",
-                      Colors.transparent,
-                      Theme.of(context).iconTheme.color!,
-                    ),
-                    _buildMenuItem(
-                      context,
-                      Icons.language,
+                      CupertinoIcons.globe,
                       "Change Language",
                       Colors.transparent,
                       Theme.of(context).iconTheme.color!,
                     ),
-                    Obx(
-                      () => _buildThemeItem(
-                        context,
-                        Icons.brightness_6,
-                        "Dark Mode",
-                        Colors.transparent,
-                        Theme.of(context).iconTheme.color!,
-                        controller.isDarkMode.value,
-                        controller.toggleTheme,
-                      ),
+                    _buildMenuItem(
+                      context,
+                      CupertinoIcons.doc_text,
+                      "Terms & Conditions",
+                      Colors.transparent,
+                      Theme.of(context).iconTheme.color!,
                     ),
+                    const SizedBox(height: 10),
+                    // const Divider(),
+                    const SizedBox(height: 10),
+                    _buildMenuItem(
+                      context,
+                      CupertinoIcons.square_arrow_right,
+                      "Logout",
+                      Colors.transparent,
+                      Colors.red,
+                    ),
+
 
                     // Add more items if needed
                   ],
@@ -211,7 +204,7 @@ class ProfileScreen extends GetView<ProfileController> {
             left: 16,
             child: GestureDetector(
               onTap: controller.onBackTap,
-              child: const Icon(Icons.arrow_back, color: Colors.white),
+              child: const Icon(CupertinoIcons.back, color: Colors.white),
             ),
           ),
         ],
@@ -251,48 +244,12 @@ class ProfileScreen extends GetView<ProfileController> {
                 ),
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+            const Icon(CupertinoIcons.chevron_right, size: 16, color: Colors.grey),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildThemeItem(
-    BuildContext context,
-    IconData icon,
-    String title,
-    Color bgColor,
-    Color iconColor,
-    bool value,
-    Function(bool) onChanged,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: iconColor),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).textTheme.bodyLarge?.color,
-              ),
-            ),
-          ),
-          Switch(value: value, onChanged: onChanged),
-        ],
-      ),
-    );
-  }
+
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:waytofresh/core/app_expote.dart';
 import 'package:waytofresh/widgets/custom_image_view.dart';
 import 'package:waytofresh/theme/text_style_helper.dart';
@@ -66,7 +67,7 @@ class CategoryCollectionCard extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    Icons.shopping_basket_outlined,
+                    CupertinoIcons.bag,
                     color: Colors.white,
                     size: 14.h,
                   ),

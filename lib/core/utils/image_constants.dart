@@ -58,6 +58,7 @@ class ImageConstant {
   // Category Screen
   static String imgMic1 = '${_basePath}mic 1.png';
   static String imgSearchinterfacesymbol1 = '${_basePath}search.png';
+  static String imgCarouselPromotion = '${_basePath}carousel_promotion.png';
 
   // Home Screen
   static String imgCategory1 = '${_basePath}category 1.png';
@@ -77,4 +78,12 @@ class ImageConstant {
   // Product Item Widget Screen
   static String imgImage5014x14 = '${_basePath}image 50.png';
   static String imgTimer4 = '${_basePath}timer 4.png';
+
+  // Meat Screen
+  static String imgMeatHero = '${_basePath}meat_hero.png';
+  static String imgRawWagyu = '${_basePath}raw_wagyu.png';
+  static String imgRawTenderloin = '${_basePath}raw_tenderloin.png';
+  static String imgMeatDeals = '${_basePath}meat_deals.png';
+  static String imgRawRibs = '${_basePath}raw_ribs.png';
+  static String imgRawLamb = '${_basePath}raw_lamb.png';
 }

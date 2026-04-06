@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'controller/splash_controller.dart';
+import '../../Widgets/custom_loading_indicator.dart';
 
 class SplashScreen extends GetView<SplashController> {
   const SplashScreen({super.key});
@@ -8,68 +9,70 @@ class SplashScreen extends GetView<SplashController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: Get.width,
-        height: Get.height,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFA1D6E0), Color(0xFF1995AD), Color(0xFF07575B)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Logo Box
-            Container(
-              width: 120,
-              height: 120,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Background Pattern
+          Opacity(
+            opacity: 0.15, // Subtle pattern
+            child: SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: Image.asset(
+                'assets/images/splash_bg.png',
+                fit: BoxFit.cover,
+                gaplessPlayback: true, // Prevents flicker if rebuilt
               ),
-              child: Center(
-                child: Text(
-                  "Way To\nFresh",
-                  textAlign: TextAlign.center,
+            ),
+          ),
+          // Central Logo
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "WayToFresh",
                   style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1995AD),
+                    fontSize: 42,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF0066FF), // Bright blue
+                    letterSpacing: -1,
                   ),
                 ),
-              ),
+                const SizedBox(height: 4),
+                // Smile Curve
+                CustomPaint(
+                  size: const Size(120, 20),
+                  painter: SmilePainter(),
+                ),
+                const SizedBox(height: 20),
+                // Custom Lottie Loading Indicator
+                const CustomLoadingIndicator(width: 120, height: 120), // Made indicator larger
+              ],
             ),
-            const SizedBox(height: 24),
-            // Tagline
-            const Text(
-              "Buy Fresh, Eat Fresh",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins',
-                color: Colors.white,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Sub-tagline or Loading indicator could go here if needed
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              strokeWidth: 2,
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+}
+
+class SmilePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF0066FF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 6
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path();
+    path.moveTo(0, 0);
+    path.quadraticBezierTo(size.width / 2, size.height * 1.5, size.width, 0);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import '../controller/cart_controller.dart';
 
@@ -56,7 +57,7 @@ class CategoryItem extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.category,
+                      CupertinoIcons.square_grid_2x2,
                       size: 22,
                       color: isSelected ? Colors.white : Colors.grey.shade600,
                     ),

@@ -286,6 +286,43 @@ class CartController extends GetxController {
     },
   ];
 
+  /// Finds product by name, or adds it if not found. Returns index.
+  int getOrRegisterProduct(dynamic product) {
+    String name = "";
+    double price = 0.0;
+    String image = "";
+
+    // Handle both Map and ProductItemModel for flexibility
+    if (product is Map<String, dynamic>) {
+      name = product['name'] ?? "";
+      price = (product['price'] ?? 0).toDouble();
+      image = product['image'] ?? "";
+    } else {
+      // Assuming ProductItemModel has .title.value, .price.value, .image
+      name = product.title.value;
+      price = (product.price.value ?? 0).toDouble();
+      image = product.image ?? "";
+    }
+
+    String searchName = name.replaceAll('\n', ' ').trim();
+    int index = allProducts.indexWhere(
+      (p) => (p['name'] as String).replaceAll('\n', ' ').trim() == searchName,
+    );
+
+    if (index == -1) {
+      allProducts.add({
+        "name": name,
+        "price": price,
+        "image": image,
+        "category": 99, // General/Other
+        "weight": "1 unit",
+        "rating": 4.0,
+      });
+      index = allProducts.length - 1;
+    }
+    return index;
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -349,6 +386,10 @@ class CartController extends GetxController {
 
   void setCategory(int index) {
     selectedIndex.value = index;
+  }
+
+  void clearCart() {
+    cartItems.clear();
   }
 
   // Dynamic Theming Logic

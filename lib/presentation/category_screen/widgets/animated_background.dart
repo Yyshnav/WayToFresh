@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/cart_controller.dart';
@@ -122,7 +121,6 @@ class AnimatedBackground extends StatelessWidget {
         ];
         break;
       case BackgroundPattern.none:
-      default:
         break;
     }
     return shapes;

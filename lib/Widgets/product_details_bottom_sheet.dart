@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:waytofresh/core/app_expote.dart';
-import 'package:waytofresh/core/utils/image_constants.dart';
 import 'package:waytofresh/presentation/homescreen/product_item_model.dart';
 import 'package:waytofresh/theme/text_style_helper.dart';
 import '../../../../widgets/custom_image_view.dart';
@@ -131,7 +131,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
                               ),
                         ),
                       ),
-                      Icon(Icons.favorite_border, color: Colors.grey),
+                      Icon(CupertinoIcons.heart, color: Colors.grey),
                     ],
                   ),
 
@@ -170,7 +170,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.bolt, color: Colors.purple, size: 16.h),
+                            Icon(CupertinoIcons.bolt, color: Colors.purple, size: 16.h),
                             SizedBox(width: 4.h),
                             Text(
                               "Available on fast delivery",
@@ -197,7 +197,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
                           color: Color(0xFF07575B),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.eco, color: Colors.white, size: 16.h),
+                        child: Icon(CupertinoIcons.info_circle, color: Colors.white, size: 16.h),
                       ),
                       SizedBox(width: 12.h),
                       Container(
@@ -207,13 +207,13 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          Icons.verified,
+                          CupertinoIcons.checkmark_seal,
                           color: Colors.orange,
                           size: 16.h,
                         ),
                       ),
                       Spacer(),
-                      Icon(Icons.star, color: Color(0xFF07575B), size: 20.h),
+                      Icon(CupertinoIcons.star_fill, color: Color(0xFF07575B), size: 20.h),
                       SizedBox(width: 4.h),
                       Text(
                         "4.5 Rating",
@@ -245,12 +245,12 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
                   ),
                   SizedBox(height: 12.h),
                   _buildAboutItem(
-                    Icons.history,
+                    CupertinoIcons.time,
                     "Shelf Life",
                     widget.product.shelfLife.value,
                   ),
                   _buildAboutItem(
-                    Icons.factory_outlined,
+                    CupertinoIcons.house,
                     "Manufacturer",
                     widget.product.manufacturerName.value,
                   ),
@@ -290,8 +290,8 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
           CircleAvatar(
             backgroundColor: Colors.grey.shade100,
             child: IconButton(
-              icon: Icon(Icons.keyboard_arrow_down, color: Colors.black),
-              onPressed: () => Get.back(),
+              icon: Icon(CupertinoIcons.chevron_down, color: Colors.black),
+              onPressed: () => Navigator.pop(context),
             ),
           ),
           Text(
@@ -304,7 +304,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
             children: [
               CircleAvatar(
                 backgroundColor: Colors.grey.shade100,
-                child: Icon(Icons.shopping_cart_outlined, color: Colors.black),
+                child: Icon(CupertinoIcons.cart, color: Colors.black),
               ),
               // We could add a badge here if we had access to total count easily without prop drilling or Get.find
             ],
@@ -340,7 +340,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
               children: [
                 GestureDetector(
                   onTap: () => controller.removeFromCart(index),
-                  child: Icon(Icons.remove_circle_outline, color: Colors.grey),
+                  child: Icon(CupertinoIcons.minus_circle, color: Colors.grey),
                 ),
                 SizedBox(width: 12.h),
                 Obx(
@@ -353,7 +353,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
                 GestureDetector(
                   onTap: () => controller.addToCart(index),
                   child: Icon(
-                    Icons.add_circle_outline,
+                    CupertinoIcons.plus_circle,
                     color: Color(0xFF07575B),
                   ),
                 ),
@@ -370,7 +370,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
                 if ((controller.cartItems[index] ?? 0) == 0) {
                   controller.addToCart(index);
                 }
-                Get.back();
+                Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFC6E872), // Lime green
@@ -384,7 +384,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.shopping_cart_outlined, size: 20.h),
+                  Icon(CupertinoIcons.cart, size: 20.h),
                   SizedBox(width: 8.h),
                   Text(
                     "Add to cart",
@@ -410,9 +410,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
           Container(
             padding: EdgeInsets.all(8.h),
             decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.grey.shade800
-                  : Colors.grey.shade100,
+              color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(8.h),
             ),
             child: Icon(icon, size: 20.h, color: Colors.grey.shade700),
@@ -467,7 +465,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
           final pModel = ProductItemModel.fromMap(item);
           return GestureDetector(
             onTap: () {
-              Get.back(); // Close current sheet
+              Navigator.pop(context); // Close current sheet
               Get.bottomSheet(
                 ProductDetailsBottomSheet(product: pModel),
                 isScrollControlled: true,

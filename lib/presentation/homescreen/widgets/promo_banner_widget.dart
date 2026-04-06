@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class PromoBannerWidget extends StatelessWidget {
   const PromoBannerWidget({super.key});
@@ -44,7 +45,7 @@ class PromoBannerWidget extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.all(4),
                                 child: const Icon(
-                                  Icons.card_giftcard,
+                                  CupertinoIcons.gift,
                                   color: Colors.amber, // Gold color
                                   size: 40,
                                 ),

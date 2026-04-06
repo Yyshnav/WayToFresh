@@ -50,10 +50,21 @@ import 'package:get/get.dart';
 import 'package:waytofresh/core/utils/size_utils.dart';
 import 'package:waytofresh/routes/app_routes.dart';
 import 'package:waytofresh/theme/theme_helper.dart';
-import 'package:waytofresh/core/utils/toast_helper.dart';
+import 'package:waytofresh/core/bindings/initial_binding.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'package:waytofresh/core/services/notification_service.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // ✅ Initialize Firebase (Mocked Error Handling for missing config)
+  try {
+    await Firebase.initializeApp();
+    await Get.putAsync(() => NotificationService().init());
+  } catch (e) {
+    print("Firebase init failed: $e. Setup google-services.json for real Push notifications.");
+  }
 
   // 🚨 CRITICAL: Lock orientation to portrait
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((
@@ -77,19 +88,13 @@ class MyApp extends StatelessWidget {
               debugShowCheckedModeBanner: false,
               title: 'blinkit_grocery',
               theme: theme,
-              darkTheme: ThemeData(
-                visualDensity: VisualDensity.standard,
-                colorScheme: ColorSchemes.darkCodeColorScheme,
-                scaffoldBackgroundColor:
-                    ColorSchemes.darkCodeColorScheme.background,
-              ),
-              themeMode: ThemeMode.system,
+              themeMode: ThemeMode.light,
               locale: const Locale('en', ''),
               fallbackLocale: const Locale('en', ''),
               initialRoute: AppRoutes.initialRoute,
               getPages: AppRoutes.pages,
+              initialBinding: InitialBinding(),
               navigatorKey: Get.key,
-              scaffoldMessengerKey: ToastHelper.messengerKey,
 
               // 👇 Ensures consistent text scaling across devices
               builder: (context, child) {

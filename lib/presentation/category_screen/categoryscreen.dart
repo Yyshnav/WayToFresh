@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:waytofresh/Widgets/custom_image_view.dart';
 import 'package:waytofresh/core/app_expote.dart';
 import 'package:waytofresh/core/utils/image_constants.dart';
 import 'package:waytofresh/theme/theme_helper.dart';
 import 'package:waytofresh/widgets/custom_blinkit_app_bar.dart';
+import 'package:waytofresh/presentation/checkout_screen/widgets/address_bottom_sheet.dart';
+import 'package:waytofresh/presentation/checkout_screen/controller/address_controller.dart';
 import 'controller/category_controller.dart';
 
 class CategoryScreen extends StatefulWidget {
@@ -30,9 +33,42 @@ class _CategoryScreenState extends State<CategoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
+      body: Column(
+        children: [
+          // Address header with gradient, matching Home Screen
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: appTheme.primaryGradient,
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: Obx(() {
+                final addressController = Get.find<AddressController>();
+                return CustomBlinkitAppBar(
+                  locationLabel: "Home",
+                  address: addressController.currentAddress.value.isNotEmpty
+                      ? addressController.currentAddress.value
+                      : "Select Location",
+                  onActionPressed: () => Get.back(),
+                  isDarkTheme: true,
+                  onLocationPressed: () {
+                    Get.bottomSheet(
+                      const AddressBottomSheet(),
+                      isScrollControlled: true,
+                    );
+                  },
+                );
+              }),
+            ),
+          ),
+
+          // Rest of category body
+          Expanded(
+            child: SafeArea(
+              top: false,
+              child: Column(
+                children: [
             // Header Section
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.h, vertical: 10.h),
@@ -67,7 +103,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           child: Row(
                             children: [
                               Icon(
-                                Icons.search,
+                                CupertinoIcons.search,
                                 color: Theme.of(context).iconTheme.color,
                               ),
                               SizedBox(width: 10.h),
@@ -92,7 +128,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          Icons.tune,
+                          CupertinoIcons.slider_horizontal_3,
                           color: Theme.of(context).iconTheme.color,
                         ),
                       ),
@@ -345,6 +381,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
             ),
           ],
         ),
+      ),
+    ),
+        ],
       ),
     );
   }

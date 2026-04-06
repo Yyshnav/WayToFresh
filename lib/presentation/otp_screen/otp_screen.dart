@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-// import 'package:pinput/pinput.dart'; // Ensure pinput is added or use native implementation
+import 'package:waytofresh/theme/theme_helper.dart';
 import 'controller/otp_controller.dart';
 
 class OtpScreen extends GetView<OtpController> {
@@ -18,7 +19,7 @@ class OtpScreen extends GetView<OtpController> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back,
+            CupertinoIcons.back,
             color: Theme.of(context).iconTheme.color,
           ),
           onPressed: controller.onBackTap,
@@ -58,17 +59,7 @@ class OtpScreen extends GetView<OtpController> {
                 child: Container(
                   padding: const EdgeInsets.all(2), // Gradient Border Width
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFFA1D6E0),
-                        Color(0xFF1995AD),
-                        Color(
-                          0xFF07575B,
-                        ), // Same gradient for border (or reverse for contrast?) - matching login style
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    gradient: appTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Container(
@@ -131,13 +122,13 @@ class OtpScreen extends GetView<OtpController> {
                     if (controller.timerSeconds.value == 0)
                       TextButton(
                         onPressed: controller.onResendTap,
-                        child: const Text(
+                        child: Text(
                           "Resend",
                           style: TextStyle(
-                            color: Color(0xFF1995AD), // White for visibility
+                            color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.underline,
-                            decorationColor: Color(0xFF1995AD),
+                            decorationColor: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ),

@@ -1,6 +1,4 @@
-// ignore_for_file: must_be_immutable
 import 'package:get/get.dart';
-import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:waytofresh/presentation/app_navigation/app_navigation.dart';
 import 'package:waytofresh/presentation/app_navigation/binding/app_navigation.dart';
 import 'package:waytofresh/presentation/category_screen/binding/category_binding.dart';
@@ -19,23 +17,38 @@ import 'package:waytofresh/presentation/splash_screen/binding/splash_binding.dar
 import 'package:waytofresh/presentation/profile_screen/profile_screen.dart';
 import 'package:waytofresh/presentation/profile_screen/binding/profile_binding.dart';
 import 'package:waytofresh/presentation/meat_screen/meat_screen.dart';
+import 'package:waytofresh/presentation/meat_screen/product_detail_screen.dart';
+import 'package:waytofresh/presentation/meat_screen/binding/meat_binding.dart';
 import 'package:waytofresh/presentation/meat_screen/bulk_order_screen.dart';
+import 'package:waytofresh/presentation/order_tracking_screen/order_tracking_screen.dart';
+import 'package:waytofresh/presentation/view_bill_screen/view_bill_screen.dart';
+import 'package:waytofresh/presentation/search_screen/search_screen.dart';
+import 'package:waytofresh/presentation/search_screen/binding/search_binding.dart';
+import 'package:waytofresh/presentation/my_orders_screen/my_orders_screen.dart';
+import 'package:waytofresh/presentation/my_orders_screen/binding/my_orders_binding.dart';
+import 'package:waytofresh/presentation/gold_promotion_screen/gold_promotion_screen.dart';
+import 'package:waytofresh/presentation/gold_promotion_screen/binding/gold_promotion_binding.dart';
 
 class AppRoutes {
   static const String categoryScreen = '/category_screen';
   static const String categoryGridScreen = '/category_grid_screen';
-  static const String meatScreen = '/meat_screen'; // New route
+  static const String meatScreen = '/meat_screen';
+  static const String productDetailScreen = '/product_detail_screen';
   static const String bulkOrderScreen = '/bulk_order_screen';
   static const String homeScreen = '/home_screen';
   static const String homeScreenInitialPage = '/home_screen_initial_page';
-
   static const String appNavigationScreen = '/app_navigation_screen';
   static const String checkoutScreen = '/checkout_screen';
   static const String loginScreen = '/login_screen';
   static const String otpScreen = '/otp_screen';
   static const String splashScreen = '/splash_screen';
-  static const String profileScreen = '/profile_screen'; // Added
-  static const String initialRoute = '/splash_screen'; // Start with Splash
+  static const String profileScreen = '/profile_screen'; 
+  static const String orderTrackingScreen = '/order_tracking_screen';
+  static const String viewBillScreen = '/view_bill_screen';
+  static const String searchScreen = '/search_screen';
+  static const String myOrdersScreen = '/my_orders_screen';
+  static const String goldPromotionScreen = '/gold_promotion_screen';
+  static const String initialRoute = '/splash_screen';
 
   static List<GetPage> pages = [
     GetPage(
@@ -47,16 +60,19 @@ class AppRoutes {
       name: profileScreen,
       page: () => const ProfileScreen(),
       binding: ProfileBinding(),
+      transition: Transition.cupertino,
     ),
     GetPage(
       name: loginScreen,
       page: () => const LoginScreen(),
       binding: LoginBinding(),
+      transition: Transition.rightToLeftWithFade,
     ),
     GetPage(
       name: otpScreen,
       page: () => const OtpScreen(),
       binding: OtpBinding(),
+      transition: Transition.rightToLeftWithFade,
     ),
     GetPage(
       name: categoryScreen,
@@ -69,27 +85,69 @@ class AppRoutes {
       name: categoryGridScreen,
       page: () => const CategoryScreen(),
       bindings: [CategoryBinding()],
+      transition: Transition.fadeIn,
     ),
     GetPage(
       name: meatScreen,
       page: () => const MeatScreen(),
-      // Add binding if necessary later
+      binding: MeatBinding(),
+      transition: Transition.rightToLeftWithFade,
     ),
-    GetPage(name: bulkOrderScreen, page: () => BulkOrderScreen()),
+    GetPage(
+      name: bulkOrderScreen,
+      page: () => BulkOrderScreen(),
+      transition: Transition.native,
+    ),
     GetPage(
       name: homeScreen,
       page: () => HomeScreen(),
       bindings: [HomeBinding()],
+      transition: Transition.fadeIn,
     ),
     GetPage(
       name: checkoutScreen,
       page: () => const CheckoutScreen(),
       binding: CheckoutBinding(),
+      transition: Transition.cupertino,
     ),
     GetPage(
       name: appNavigationScreen,
       page: () => AppNavigationScreen(),
       bindings: [AppNavigationBinding()],
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: orderTrackingScreen,
+      page: () => const OrderTrackingScreen(),
+      transition: Transition.native,
+    ),
+    GetPage(
+      name: viewBillScreen,
+      page: () => const ViewBillScreen(),
+      transition: Transition.cupertino,
+    ),
+    GetPage(
+      name: searchScreen,
+      page: () => const SearchScreen(),
+      binding: SearchBinding(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: myOrdersScreen,
+      page: () => const MyOrdersScreen(),
+      binding: MyOrdersBinding(),
+      transition: Transition.rightToLeftWithFade,
+    ),
+    GetPage(
+      name: productDetailScreen,
+      page: () => ProductDetailScreen(),
+      transition: Transition.cupertino,
+    ),
+    GetPage(
+      name: goldPromotionScreen,
+      page: () => const GoldPromotionScreen(),
+      binding: GoldPromotionBinding(),
+      transition: Transition.fadeIn,
     ),
   ];
 }

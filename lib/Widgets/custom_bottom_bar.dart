@@ -60,9 +60,7 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
           currentIndex: widget.selectedIndex,
           selectedItemColor:
               widget.indicatorColor ?? Theme.of(context).primaryColor,
-          unselectedItemColor: Theme.of(context).brightness == Brightness.dark
-              ? Colors.white70
-              : Colors.grey,
+          unselectedItemColor: Colors.grey,
           backgroundColor:
               Theme.of(context).bottomNavigationBarTheme.backgroundColor ??
               Theme.of(context).cardColor,
@@ -103,9 +101,7 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
                     color: isSelected
                         ? (widget.indicatorColor ??
                               Theme.of(context).primaryColor)
-                        : (Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white70
-                              : Colors.grey),
+                        : Colors.grey,
                   ),
                 ],
               ),

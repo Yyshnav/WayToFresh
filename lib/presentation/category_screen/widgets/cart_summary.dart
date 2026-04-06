@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:get/get.dart';
 import '../controller/cart_controller.dart';
@@ -41,7 +42,7 @@ class CartSummary extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
-                        Icons.shopping_cart,
+                        CupertinoIcons.cart,
                         color: Colors.white,
                         size: 20,
                       ),
@@ -84,7 +85,7 @@ class CartSummary extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 4),
-                    Icon(Icons.arrow_forward, color: Colors.white, size: 16),
+                    Icon(CupertinoIcons.arrow_right, color: Colors.white, size: 16),
                   ],
                 ),
               ],

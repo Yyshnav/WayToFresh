@@ -14,14 +14,11 @@ class ThemeHelper {
   // A map of custom color themes supported by the app
   Map<String, LightCodeColors> _supportedCustomColor = {
     'lightCode': LightCodeColors(),
-    'darkCode':
-        LightCodeColors(), // Using same structure for now, can be specialized
   };
 
   // A map of color schemes supported by the app
   Map<String, ColorScheme> _supportedColorScheme = {
     'lightCode': ColorSchemes.lightCodeColorScheme,
-    'darkCode': ColorSchemes.darkCodeColorScheme,
   };
 
   /// Returns the lightCode colors for the current theme.
@@ -57,7 +54,7 @@ class ThemeHelper {
 
 class ColorSchemes {
   static final lightCodeColorScheme = ColorScheme.light(
-    primary: Color(0xFF07575B),
+    primary: const Color.fromARGB(255, 8, 43, 84), // Lighter Navy Blue (Blue 800)
     onPrimary: Colors.white,
     secondary: Color(0xFF26AF34),
     onSecondary: Colors.white,
@@ -65,17 +62,6 @@ class ColorSchemes {
     onBackground: Colors.black,
     surface: Colors.white,
     onSurface: Colors.black,
-  );
-
-  static final darkCodeColorScheme = ColorScheme.dark(
-    primary: Color(0xFF0A8F94), // Lighter Teal for dark mode
-    onPrimary: Colors.black,
-    secondary: Color(0xFF34D44A), // Lighter Green
-    onSecondary: Colors.black,
-    background: Color(0xFF121212),
-    onBackground: Colors.white,
-    surface: Color(0xFF1E1E1E),
-    onSurface: Colors.white,
   );
 }
 
@@ -93,6 +79,18 @@ class LightCodeColors {
   Color get teal_50_01 => Color(0xFFD9EBEB);
   Color get teal_100 => Color(0xFFB2DFDB); // Added for ripple
   Color get teal_200 => Color(0xFF80CBC4); // Added for ripple
+  Color get gray_900 => Color(0xFF121212); // Deep grey for dark overlays
+
+  // App Gradients
+  LinearGradient get primaryGradient => const LinearGradient(
+        colors: [
+          Color(0xFF0F4485), // Lighter Navy
+          Color.fromARGB(255, 8, 43, 84), // The exact Navy Blue chosen by user
+          Color(0xFF04172E), // Deepest Navy
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
 
   // Additional Colors
   Color get transparentCustom => Colors.transparent;
