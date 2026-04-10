@@ -16,7 +16,10 @@ class SectionHeader extends StatelessWidget {
           Expanded(
             child: Obx(
               () => Text(
-                "Popular in ${controller.categories[controller.selectedIndex.value]}",
+                (controller.categories.isNotEmpty && 
+                 controller.selectedIndex.value < controller.categories.length)
+                  ? "Popular in ${controller.categories[controller.selectedIndex.value]}"
+                  : "Popular Items",
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,

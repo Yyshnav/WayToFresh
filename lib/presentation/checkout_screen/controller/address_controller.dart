@@ -3,11 +3,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../models/address_model.dart';
+import '../../../core/utils/toast_helper.dart';
 
 class AddressController extends GetxController {
   var isLocationLoading = false.obs;
   var currentAddress = "802, Kundan Eternia, B T Kawade Road...".obs;
   var currentLatLng = Rxn<LatLng>();
+  final selectedAddressId = Rxn<int>();
 
   // ✅ Saved Addresses List
   final RxList<AddressModel> savedAddresses = <AddressModel>[].obs;
@@ -38,6 +40,7 @@ class AddressController extends GetxController {
     ]);
     // Set initial address
     currentAddress.value = savedAddresses.first.fullAddress;
+    selectedAddressId.value = int.tryParse(savedAddresses.first.id);
   }
 
   // ✅ Add New Address
@@ -53,6 +56,7 @@ class AddressController extends GetxController {
     }
     currentAddress.value = address.fullAddress;
     currentLatLng.value = address.latLng;
+    selectedAddressId.value = int.tryParse(address.id);
     savedAddresses.refresh();
   }
 
@@ -68,10 +72,10 @@ class AddressController extends GetxController {
         // In a real app, you would reverse geocode here to get the address string
         currentAddress.value = "${position.latitude}, ${position.longitude}";
       } else {
-        Get.snackbar("Permission Denied", "Location permission is required");
+        ToastHelper.showWarning("Location permission is required to fetch your current address");
       }
     } catch (e) {
-      Get.snackbar("Error", "Failed to get location: $e");
+      ToastHelper.showError("Failed to get location: $e");
     } finally {
       isLocationLoading.value = false;
     }

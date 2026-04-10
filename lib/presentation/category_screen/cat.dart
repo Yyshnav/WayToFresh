@@ -21,21 +21,55 @@ class CatScreen extends StatefulWidget {
 class _CatScreenState extends State<CatScreen> {
   final CartController controller = Get.find<CartController>();
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _sidebarScrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     // ✅ Fix: Force update selected category from arguments every time screen opens
-    if (Get.arguments != null && Get.arguments is int) {
-      controller.setCategory(Get.arguments);
-    }
+    // Use post-frame callback to prevent "setState() during build" error
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.arguments != null && Get.arguments is int) {
+        controller.setCategory(Get.arguments);
+      }
+    });
+    
+    // Auto-scroll sidebar when categories load or index changes
+    ever(controller.categories, (_) => _scrollToSelectedCategory());
+    ever(controller.selectedIndex, (_) => _scrollToSelectedCategory());
+    
+    // Initial scroll attempt after a short delay to allow list to render
+    Future.delayed(const Duration(milliseconds: 600), _scrollToSelectedCategory);
+    
     _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _sidebarScrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToSelectedCategory() {
+    if (_sidebarScrollController.hasClients && controller.categories.isNotEmpty) {
+      // Approximate height of CategoryItem (padding + icon + text + margin)
+      const double itemHeight = 114.0; 
+      double scrollPosition = controller.selectedIndex.value * itemHeight;
+      
+      // Center the item in the sidebar if possible
+      double viewportHeight = MediaQuery.of(context).size.height * 0.8; // Approx
+      scrollPosition = scrollPosition - (viewportHeight / 3);
+
+      double maxScroll = _sidebarScrollController.position.maxScrollExtent;
+      scrollPosition = scrollPosition.clamp(0.0, maxScroll);
+      
+      _sidebarScrollController.animateTo(
+        scrollPosition,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   void _onScroll() {
@@ -102,7 +136,8 @@ class _CatScreenState extends State<CatScreen> {
                               ),
                             ),
                           ),
-                          child: ListView.builder(
+                          child: Obx(() => ListView.builder(
+                            controller: _sidebarScrollController,
                             itemCount: controller.categories.length,
                             itemBuilder: (context, index) {
                               return CategoryItem(
@@ -110,7 +145,7 @@ class _CatScreenState extends State<CatScreen> {
                                 controller: controller,
                               );
                             },
-                          ),
+                          )),
                         ),
                       ),
 

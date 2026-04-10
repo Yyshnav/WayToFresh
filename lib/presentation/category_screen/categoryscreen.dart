@@ -9,6 +9,7 @@ import 'package:waytofresh/widgets/custom_blinkit_app_bar.dart';
 import 'package:waytofresh/presentation/checkout_screen/widgets/address_bottom_sheet.dart';
 import 'package:waytofresh/presentation/checkout_screen/controller/address_controller.dart';
 import 'controller/category_controller.dart';
+import 'package:waytofresh/routes/app_routes.dart';
 
 class CategoryScreen extends StatefulWidget {
   final ScrollController? scrollController;
@@ -332,15 +333,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     var item = controller.collections[index];
                     return GestureDetector(
                       onTap: () {
-                        if (item.title.contains("Meat") ||
-                            item.title.contains("Fish")) {
-                          Get.toNamed(AppRoutes.meatScreen);
-                        } else {
-                          Get.toNamed(
-                            AppRoutes.categoryScreen,
-                            arguments: index,
-                          );
-                        }
+                        // Navigate to the Sidebar-integrated category view
+                        Get.toNamed(
+                          AppRoutes.categoryScreen,
+                          arguments: index, // Pass the index for the controller to pick up
+                        );
                       },
                       child: Column(
                         children: [

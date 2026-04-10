@@ -102,18 +102,49 @@ class CouponScreen extends StatelessWidget {
 
           // Coupon List
           Expanded(
-            child: Obx(
-              () => ListView.separated(
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (controller.errorMessage.value.isNotEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(CupertinoIcons.wifi_slash, size: 48, color: Colors.grey.shade300),
+                      const SizedBox(height: 12),
+                      Text(
+                        controller.errorMessage.value,
+                        style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: controller.loadCoupons,
+                        child: const Text("Retry", style: TextStyle(color: Colors.green)),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              if (controller.coupons.isEmpty) {
+                return Center(
+                  child: Text(
+                    "No coupons available right now.",
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+                  ),
+                );
+              }
+              return ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: controller.coupons.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 16),
+                separatorBuilder: (context, index) => const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final coupon = controller.coupons[index];
                   return _buildCouponCard(context, coupon, controller);
                 },
-              ),
-            ),
+              );
+            }),
           ),
         ],
       ),

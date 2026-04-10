@@ -177,30 +177,35 @@ class MeatScreen extends GetView<MeatController> {
     return SafeArea(
       child: Stack(
         children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.all(20.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header Row
-                  _buildHeader(context),
-                  SizedBox(height: 25.h),
-                  // Search & Filters
-                  _buildGreeting(context),
-                  SizedBox(height: 20.h),
-                  // New Carousel
-                  HomeCarousel(images: controller.bannerImages),
-                  SizedBox(height: 20.h),
-                  _buildCategoryTabs(context),
-                  SizedBox(height: 25.h),
-                  // Product Grid
-                  _buildProductGrid(context),
-                  SizedBox(height: 25.h),
-                  // Deals Banner
-                  _buildDealsBanner(context),
-                  SizedBox(height: 80.h), // Space for cart summary
-                ],
+          RefreshIndicator(
+            onRefresh: controller.fetchProducts,
+            color: const Color(0xFF800000), // Meat section primary
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(), // Ensures it always works
+              child: Padding(
+                padding: EdgeInsets.all(20.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header Row
+                    _buildHeader(context),
+                    SizedBox(height: 25.h),
+                    // Search & Filters
+                    _buildGreeting(context),
+                    SizedBox(height: 20.h),
+                    // New Carousel
+                    HomeCarousel(images: controller.bannerImages),
+                    SizedBox(height: 20.h),
+                    _buildCategoryTabs(context),
+                    SizedBox(height: 25.h),
+                    // Product Grid
+                    _buildProductGrid(context),
+                    SizedBox(height: 25.h),
+                    // Deals Banner
+                    _buildDealsBanner(context),
+                    SizedBox(height: 80.h), // Space for cart summary
+                  ],
+                ),
               ),
             ),
           ),

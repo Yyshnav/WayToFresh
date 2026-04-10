@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import '../../../data/models/coupon_model.dart';
+import '../../../core/network/dio_client.dart';
+import 'package:dio/dio.dart';
+import '../../../core/utils/toast_helper.dart';
 
 class CouponController extends GetxController {
   final coupons = <Coupon>[].obs;
   final appliedCoupon = Rxn<Coupon>();
   final discountAmount = 0.0.obs;
   final showConfetti = false.obs;
+  final isLoading = false.obs;
+  final errorMessage = ''.obs;
 
   final TextEditingController searchController = TextEditingController();
 
@@ -17,183 +22,84 @@ class CouponController extends GetxController {
     loadCoupons();
   }
 
-  void loadCoupons() {
-    // Mock data based on the image provided
-    coupons.assignAll([
-      Coupon(
-        code: "TRYNEW",
-        title: "TRYNEW",
-        description:
-            "Use code TRYNEW & get 20% off on orders above ₹699. Maximum discount ₹200",
-        discountValue: 20,
-        isPercentage: true,
-        minOrderValue: 699,
-        maxDiscount: 200,
-      ),
-      Coupon(
-        code: "FREED100",
-        title: "FREED100",
-        description: "Flat ₹100 off on all orders.",
-        discountValue: 100,
-        isPercentage: false,
-        minOrderValue: 0,
-      ),
-      Coupon(
-        code: "SALE50",
-        title: "SALE50",
-        description:
-            "Big Sale - Flat 50% off on everything on orders above ₹1000. Maximum discount ₹550",
-        discountValue: 50,
-        isPercentage: true,
-        minOrderValue: 1000,
-        maxDiscount: 550,
-      ),
-      Coupon(
-        code: "NEW50",
-        title: "NEW50",
-        description:
-            "New customer offer - Flat 50% off on everything on orders above ₹299. Maximum discount ₹250",
-        discountValue: 50,
-        isPercentage: true,
-        minOrderValue: 299,
-        maxDiscount: 250,
-      ),
-      Coupon(
-        code: "GIFTPROMO4",
-        title: "GIFTPROMO4",
-        description: "Save 50% off. For any product in grocery store.",
-        discountValue: 50,
-        isPercentage: true,
-        minOrderValue: 0,
-        maxDiscount: 500,
-      ),
-    ]);
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
   }
 
-  void applyCoupon(BuildContext context, Coupon coupon, double orderValue) {
-    if (orderValue < coupon.minOrderValue) {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(CupertinoIcons.info, color: Colors.white),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Coupon Not Applicable",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
-                    ),
-                    Text(
-                      "Add items worth ₹${(coupon.minOrderValue - orderValue).toStringAsFixed(2)} more to use this offer.",
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red.shade800,
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          duration: const Duration(seconds: 4),
-        ),
-      );
-      return;
-    }
-
-    double discount = 0.0;
-    if (coupon.isPercentage) {
-      discount = (orderValue * coupon.discountValue) / 100;
-      if (discount > coupon.maxDiscount) {
-        discount = coupon.maxDiscount;
+  Future<void> loadCoupons() async {
+    isLoading.value = true;
+    errorMessage.value = '';
+    try {
+      final response = await DioClient().dio.get('coupons/');
+      if (response.statusCode == 200) {
+        final List data = response.data['results'] ?? response.data;
+        coupons.assignAll(data.map((c) => Coupon.fromMap(c)).toList());
       }
-    } else {
-      discount = coupon.discountValue;
-    }
-
-    // Ensure discount doesn't exceed order value
-    if (discount > orderValue) {
-      discount = orderValue;
-    }
-
-    appliedCoupon.value = coupon;
-    discountAmount.value = discount;
-    showConfetti.value = true;
-    Get.back();
-    // Success feedback is provided by confetti animation
-  }
-
-  void applyCode(BuildContext context, String code, double orderValue) {
-    final coupon = coupons.firstWhereOrNull(
-      (c) => c.code == code.toUpperCase(),
-    );
-    if (coupon != null) {
-      applyCoupon(context, coupon, orderValue);
-    } else {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(CupertinoIcons.exclamationmark_circle, color: Colors.white),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      "Invalid Code",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
-                    ),
-                    Text(
-                      "The coupon code you entered is not valid.",
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red.shade800,
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          duration: const Duration(seconds: 3),
-        ),
-      );
+    } catch (e) {
+      debugPrint('Error loading coupons: $e');
+      errorMessage.value = 'Could not load coupons. Please try again.';
+      // Graceful fallback to empty list; CouponScreen will show error state
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  void removeCoupon() {
+  Future<void> applyCoupon(BuildContext context, Coupon coupon, double orderValue) async {
+    await applyCode(context, coupon.code, orderValue);
+  }
+
+  Future<void> applyCode(BuildContext context, String code, double orderValue) async {
+    if (code.isEmpty) return;
+    
+    isLoading.value = true;
+    try {
+      final response = await DioClient().dio.post('coupons/apply/', data: {
+        'code': code.toUpperCase(),
+        'order_value': orderValue,
+      });
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        // Find the coupon in our list to keep the full model if possible, 
+        // or create a minimal one from response
+        Coupon? coupon = coupons.firstWhereOrNull((c) => c.code == data['code']);
+        coupon ??= Coupon(
+          code: data['code'],
+          title: data['title'] ?? data['code'],
+          description: '',
+          discountValue: double.tryParse(data['discount_amount'].toString()) ?? 0.0,
+          isPercentage: false, // Server already calculated the flat discount
+          minOrderValue: 0,
+        );
+
+        appliedCoupon.value = coupon;
+        discountAmount.value = double.tryParse(data['discount_amount'].toString()) ?? 0.0;
+        showConfetti.value = true;
+        
+        ToastHelper.showSuccess("Coupon '${coupon.code}' applied successfully!");
+        Get.back();
+      }
+    } catch (e) {
+      debugPrint('Error applying coupon: $e');
+      String errorMsg = "Invalid or expired coupon code.";
+      
+      if (e is DioException && e.response != null && e.response?.data is Map) {
+        errorMsg = (e.response?.data as Map)['error'] ?? errorMsg;
+      }
+
+      if (context.mounted) {
+        ToastHelper.showError(errorMsg);
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void removeCoupon(BuildContext context) {
     appliedCoupon.value = null;
     discountAmount.value = 0.0;
-    Get.snackbar(
-      "Removed",
-      "Coupon removed successfully",
-      backgroundColor: Colors.orange.shade50,
-      colorText: Colors.orange,
-    );
+    ToastHelper.showInfo("Coupon removed successfully");
   }
 }

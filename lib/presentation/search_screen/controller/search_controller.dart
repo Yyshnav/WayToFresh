@@ -34,6 +34,13 @@ class SearchScreenController extends GetxController {
     performSearch(value);
   }
 
+  Future<void> refreshSearch() async {
+    if (searchController.text.isNotEmpty) {
+      performSearch(searchController.text);
+    }
+  }
+
+
   void performSearch(String query) {
     isLoading.value = true;
     

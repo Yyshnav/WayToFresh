@@ -6,6 +6,7 @@ import 'package:waytofresh/presentation/category_screen/controller/cart_controll
 import 'package:waytofresh/theme/text_style_helper.dart';
 import 'package:waytofresh/theme/theme_helper.dart';
 import 'package:waytofresh/widgets/custom_image_view.dart';
+import 'package:waytofresh/widgets/product_details_bottom_sheet.dart';
 import '../product_item_model.dart';
 
 class HomeProductList extends StatelessWidget {
@@ -47,121 +48,149 @@ class HomeProductList extends StatelessWidget {
               itemBuilder: (context, index) {
                 final product = products[index];
                 final cartController = Get.find<CartController>();
-                final int productIndex = cartController.getOrRegisterProduct(product);
 
-                return Container(
-                  width: 160,
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.07),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      // Product Image
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: CustomImageView(
-                          imagePath: product.image,
-                          height: 80,
-                          width: 65,
-                          fit: BoxFit.cover,
+                return GestureDetector(
+                  onTap: () {
+                    Get.bottomSheet(
+                      ProductDetailsBottomSheet(product: product),
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                    );
+                  },
+                  child: Container(
+                    width: 160,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.07),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Info Column
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              product.title.value,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Poppins',
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        // Product Image
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: CustomImageView(
+                            imagePath: product.image,
+                            height: 80,
+                            width: 65,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Info Column
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                product.title.value,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Poppins',
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '₹${product.price.value}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                                fontFamily: 'Poppins',
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Text(
+                                    '₹${product.price.value}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.primary,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Obx(() => Text(
+                                    '₹${product.originalPrice.value}',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      decoration: TextDecoration.lineThrough,
+                                      color: Colors.grey,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  )),
+                                ],
                               ),
-                            ),
-                            const SizedBox(height: 5),
-                            // ADD / Qty Stepper
-                            if (productIndex == -1) const SizedBox.shrink() else Obx(() {
-                              int qty = cartController.cartItems[productIndex] ?? 0;
-                              return qty == 0
-                                  ? GestureDetector(
-                                      onTap: () => cartController.addToCart(productIndex),
-                                      child: Container(
+                              const SizedBox(height: 5),
+                              // ADD / Qty Stepper
+                              Obx(() {
+                                // Use stable ID for cart state
+                                final int productId = cartController.getOrRegisterProduct(product);
+                                int qty = productId == -1 ? 0 : (cartController.cartItems[productId] ?? 0);
+                                
+                                return qty == 0
+                                    ? GestureDetector(
+                                        onTap: () {
+                                          cartController.registerProduct(product);
+                                          cartController.addToCart(productId);
+                                        },
+                                        child: Container(
+                                          height: 22,
+                                          width: 50,
+                                          decoration: BoxDecoration(
+                                            color: appTheme.green_600,
+                                            borderRadius: BorderRadius.circular(11),
+                                          ),
+                                          child: const Center(
+                                            child: Text(
+                                              'ADD',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : Container(
                                         height: 22,
-                                        width: 50,
+                                        width: 65,
                                         decoration: BoxDecoration(
-                                          color: appTheme.green_600,
+                                          border: Border.all(color: appTheme.green_600),
                                           borderRadius: BorderRadius.circular(11),
                                         ),
-                                        child: const Center(
-                                          child: Text(
-                                            'ADD',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () => cartController.removeFromCart(productId),
+                                              child: Icon(CupertinoIcons.minus, size: 13, color: appTheme.green_600),
                                             ),
-                                          ),
+                                            Text(
+                                              '$qty',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: appTheme.green_600,
+                                              ),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () => cartController.addToCart(productId),
+                                              child: Icon(CupertinoIcons.add, size: 13, color: appTheme.green_600),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                    )
-                                  : Container(
-                                      height: 22,
-                                      width: 65,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: appTheme.green_600),
-                                        borderRadius: BorderRadius.circular(11),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          GestureDetector(
-                                            onTap: () => cartController.removeFromCart(productIndex),
-                                            child: Icon(CupertinoIcons.minus, size: 13, color: appTheme.green_600),
-                                          ),
-                                          Text(
-                                            '$qty',
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                              color: appTheme.green_600,
-                                            ),
-                                          ),
-                                          GestureDetector(
-                                            onTap: () => cartController.addToCart(productIndex),
-                                            child: Icon(CupertinoIcons.add, size: 13, color: appTheme.green_600),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                            }),
-                          ],
+                                      );
+                              }),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },

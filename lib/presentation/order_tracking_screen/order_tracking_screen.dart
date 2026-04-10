@@ -27,6 +27,13 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
   void initState() {
     super.initState();
     _loadMarkerIcons();
+    
+    // ✅ Auto-pan camera when rider moves
+    ever(controller.deliveryBoyLocation, (LatLng location) {
+      if (location != null && location.latitude != 0) {
+        mapController.animateCamera(CameraUpdate.newLatLng(location));
+      }
+    });
   }
 
   void _loadMarkerIcons() async {
@@ -61,19 +68,19 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
   Widget _buildMap() {
     return Obx(() => GoogleMap(
           onMapCreated: (c) => mapController = c,
-          initialCameraPosition: const CameraPosition(target: _center, zoom: 15.0),
+          initialCameraPosition: CameraPosition(target: controller.deliveryBoyLocation.value, zoom: 15.0),
           markers: {
             Marker(
               markerId: const MarkerId('delivery_boy'),
               position: controller.deliveryBoyLocation.value,
               icon: riderIcon ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-              infoWindow: const InfoWindow(title: 'Delivery Partner'),
+              infoWindow: InfoWindow(title: controller.riderName.value.isNotEmpty ? controller.riderName.value : 'Delivery Partner'),
             ),
-            const Marker(
-              markerId: MarkerId('destination'),
-              position: _center,
+            Marker(
+              markerId: const MarkerId('destination'),
+              position: controller.destinationLocation.value,
               icon: BitmapDescriptor.defaultMarker,
-              infoWindow: InfoWindow(title: 'You'),
+              infoWindow: const InfoWindow(title: 'You'),
             ),
           },
           zoomControlsEnabled: false,
@@ -218,8 +225,11 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12.h), border: Border.all(color: Colors.grey.shade200)),
                             child: Column(
                               children: [
-                                Text('Código ID', style: TextStyle(fontSize: 8.fSize, color: Colors.grey)),
-                                Text('9246', style: TextStyle(fontSize: 14.fSize, fontWeight: FontWeight.bold)),
+                                Text('Order ID', style: TextStyle(fontSize: 8.fSize, color: Colors.grey)),
+                                Obx(() => Text(
+                                  controller.orderId.value?.toString() ?? '--',
+                                  style: TextStyle(fontSize: 14.fSize, fontWeight: FontWeight.bold),
+                                )),
                               ],
                             ),
                           ),
@@ -236,7 +246,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                         children: [
                           _buildDetailRow(
                             icon: CupertinoIcons.phone,
-                            title: 'Shruti Parashar, 9999999999',
+                            title: '${controller.customerName.value}, ${controller.customerPhone.value}',
                             subtitle: 'Delivery partner may call this number',
                             hasEdit: true,
                           ),
@@ -244,7 +254,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                           _buildDetailRow(
                             icon: CupertinoIcons.location,
                             title: 'Delivery at location',
-                            subtitle: 'Ludhiana Bus Stop, Vishwakarma Road,\nSant pura, Ludhiana',
+                            subtitle: controller.deliveryAddress.value,
                             hasEdit: true,
                           ),
                           _buildDashedDivider(verticalPadding: 16.h),
@@ -265,8 +275,8 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Julie\'s', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.fSize)),
-                                    Text('Model Town, Ludhiana', style: TextStyle(color: Colors.grey, fontSize: 11.fSize)),
+                                    Text(controller.riderName.value.isNotEmpty ? controller.riderName.value : 'Waiting for Rider...', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.fSize)),
+                                    Text('Delivery Partner', style: TextStyle(color: Colors.grey, fontSize: 11.fSize)),
                                   ],
                                 ),
                               ),
@@ -278,7 +288,13 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                             ],
                           ),
                           _buildDashedDivider(),
-                          _buildDetailRow(icon: CupertinoIcons.doc_text, title: 'Order #5842126599', subtitle: '1 x Taco', iconColor: Colors.grey.shade400, statusWidget: Container(width: 8.h, height: 8.h, decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle))),
+                          _buildDetailRow(
+                            icon: CupertinoIcons.doc_text, 
+                            title: 'Order Tracking', 
+                            subtitle: controller.itemsSummary.value, 
+                            iconColor: Colors.grey.shade400, 
+                            statusWidget: Container(width: 8.h, height: 8.h, decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle))
+                          ),
                           _buildDashedDivider(),
                           _buildInteractiveInstructionsRow(),
                         ],
@@ -372,7 +388,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
             SizedBox(width: 12.h),
             Text("Bill Summary", style: TextStyle(fontSize: 14.fSize, fontWeight: FontWeight.bold)),
             const Spacer(),
-            Text("₹92", style: TextStyle(fontSize: 16.fSize, fontWeight: FontWeight.w900, color: Colors.black87)),
+            Text("₹${controller.grandTotal.value.toStringAsFixed(0)}", style: TextStyle(fontSize: 16.fSize, fontWeight: FontWeight.w900, color: Colors.black87)),
             Icon(CupertinoIcons.chevron_right, size: 16.h, color: Colors.grey),
           ],
         ),

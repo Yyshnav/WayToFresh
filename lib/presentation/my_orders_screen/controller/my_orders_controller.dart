@@ -8,14 +8,14 @@ class MyOrdersController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _loadMockOrders();
+    refreshOrders();
   }
 
-  void _loadMockOrders() {
+  Future<void> refreshOrders() async {
     isLoading.value = true;
-    // Simulate API delay
-    Future.delayed(const Duration(milliseconds: 800), () {
-      orders.value = [
+    // Simulate API delay, in real app this would call backend
+    await Future.delayed(const Duration(milliseconds: 800));
+    orders.value = [
         OrderItemModel(
           id: "#WF-58421",
           date: DateTime.now().subtract(const Duration(hours: 2)),
@@ -39,7 +39,6 @@ class MyOrdersController extends GetxController {
         ),
       ];
       isLoading.value = false;
-    });
   }
 
   void onOrderTap(OrderItemModel order) {

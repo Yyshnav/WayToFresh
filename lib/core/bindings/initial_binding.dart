@@ -3,7 +3,7 @@ import 'package:waytofresh/presentation/category_screen/controller/cart_controll
 import 'package:waytofresh/presentation/checkout_screen/controller/address_controller.dart';
 import 'package:waytofresh/presentation/no_internet_screen/controller/connectivity_controller.dart';
 import 'package:waytofresh/core/controllers/notification_controller.dart';
-import 'package:waytofresh/presentation/order_tracking_screen/controller/order_tracking_controller.dart';
+import 'package:waytofresh/presentation/checkout_screen/controller/order_controller.dart';
 
 class InitialBinding extends Bindings {
   @override
@@ -20,7 +20,7 @@ class InitialBinding extends Bindings {
     // Global Notification Handling
     Get.put(NotificationController(), permanent: true);
 
-    // Global Tracking State
-    Get.put(OrderTrackingController(), permanent: true);
+    // Global Order State (Tracking active orders globally)
+    Get.put(OrderController(), permanent: true);
   }
 }

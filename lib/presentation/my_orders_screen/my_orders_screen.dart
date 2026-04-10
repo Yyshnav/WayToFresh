@@ -17,17 +17,27 @@ class MyOrdersScreen extends GetView<MyOrdersController> {
         children: [
           _buildHeader(context),
           Expanded(
-            child: Obx(() {
-              if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
+            child: RefreshIndicator(
+              onRefresh: controller.refreshOrders,
+              color: const Color(0xFF07575B),
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              if (controller.orders.isEmpty) {
-                return _buildEmptyState();
-              }
+                if (controller.orders.isEmpty) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      child: _buildEmptyState(),
+                    ),
+                  );
+                }
 
-              return _buildOrdersList();
-            }),
+                return _buildOrdersList();
+              }),
+            ),
           ),
         ],
       ),
@@ -79,6 +89,7 @@ class MyOrdersScreen extends GetView<MyOrdersController> {
 
   Widget _buildOrdersList() {
     return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.all(16.h),
       itemCount: controller.orders.length,
       itemBuilder: (context, index) {

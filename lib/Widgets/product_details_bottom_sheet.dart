@@ -32,11 +32,8 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
   Widget build(BuildContext context) {
     final CartController cartController = Get.find<CartController>();
 
-    // Find index for cart operations
-    int productIndex = cartController.allProducts.indexWhere(
-      (p) => p['name'] == widget.product.title.value,
-    );
-    if (productIndex == -1) productIndex = 0; // Fallback
+    // Use stable ID for cart operations
+    final int productId = widget.product.id.value;
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
@@ -150,13 +147,26 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
                   // Price and Delivery Badge
                   Row(
                     children: [
-                      Text(
-                        "₹${widget.product.price.value}",
-                        style: TextStyleHelper.instance.title20BoldPTSerif
-                            .copyWith(
-                              fontSize: 24.fSize,
-                              color: Theme.of(context).primaryColor,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "₹${widget.product.price.value}",
+                            style: TextStyleHelper.instance.title20BoldPTSerif
+                                .copyWith(
+                                  fontSize: 24.fSize,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                          ),
+                          Obx(() => Text(
+                            "₹${widget.product.originalPrice.value}",
+                            style: TextStyleHelper.instance.label10RegularPoppins.copyWith(
+                              decoration: TextDecoration.lineThrough,
+                              color: Colors.grey,
+                              fontSize: 14.fSize,
                             ),
+                          )),
+                        ],
                       ),
                       Spacer(),
                       Container(
@@ -194,7 +204,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
                       Container(
                         padding: EdgeInsets.all(8.h),
                         decoration: BoxDecoration(
-                          color: Color(0xFF07575B),
+                          color: const Color(0xFF07575B),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(CupertinoIcons.info_circle, color: Colors.white, size: 16.h),
@@ -216,9 +226,9 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
                       Icon(CupertinoIcons.star_fill, color: Color(0xFF07575B), size: 20.h),
                       SizedBox(width: 4.h),
                       Text(
-                        "4.5 Rating",
+                        "${widget.product.rating.value} Rating",
                         style: TextStyleHelper.instance.body14BoldPoppins
-                            .copyWith(color: Color(0xFF07575B)),
+                            .copyWith(color: const Color(0xFF07575B)),
                       ),
                     ],
                   ),
@@ -240,20 +250,22 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
                     "About Product",
                     style: TextStyleHelper.instance.title20BoldPTSerif.copyWith(
                       fontSize: 18.fSize,
-                      color: Color(0xFF07575B),
+                      color: const Color(0xFF07575B),
                     ),
                   ),
                   SizedBox(height: 12.h),
-                  _buildAboutItem(
-                    CupertinoIcons.time,
-                    "Shelf Life",
-                    widget.product.shelfLife.value,
-                  ),
-                  _buildAboutItem(
-                    CupertinoIcons.house,
-                    "Manufacturer",
-                    widget.product.manufacturerName.value,
-                  ),
+                  if (widget.product.shelfLife.value.isNotEmpty)
+                    _buildAboutItem(
+                      CupertinoIcons.time,
+                      "Shelf Life",
+                      widget.product.shelfLife.value,
+                    ),
+                  if (widget.product.manufacturerName.value.isNotEmpty)
+                    _buildAboutItem(
+                      CupertinoIcons.house,
+                      "Manufacturer",
+                      widget.product.manufacturerName.value,
+                    ),
 
                   SizedBox(height: 32.h),
 
@@ -275,7 +287,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
           ),
 
           // 3. Bottom Bar
-          _buildBottomBar(cartController, productIndex),
+          _buildBottomBar(cartController, productId),
         ],
       ),
     );
@@ -314,7 +326,7 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
     );
   }
 
-  Widget _buildBottomBar(CartController controller, int index) {
+  Widget _buildBottomBar(CartController controller, int id) {
     return Container(
       padding: EdgeInsets.all(16.h),
       decoration: BoxDecoration(
@@ -339,19 +351,19 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
             child: Row(
               children: [
                 GestureDetector(
-                  onTap: () => controller.removeFromCart(index),
+                  onTap: () => controller.removeFromCart(id),
                   child: Icon(CupertinoIcons.minus_circle, color: Colors.grey),
                 ),
                 SizedBox(width: 12.h),
                 Obx(
                   () => Text(
-                    "${controller.cartItems[index] ?? 1}", // Default to 1 for visual if 0, logic handled elsewhere usually
+                    "${controller.cartItems[id] ?? 1}", // Default to 1 for visual if 0, logic handled elsewhere usually
                     style: TextStyleHelper.instance.body14BoldPoppins,
                   ),
                 ),
                 SizedBox(width: 12.h),
                 GestureDetector(
-                  onTap: () => controller.addToCart(index),
+                  onTap: () => controller.addToCart(id),
                   child: Icon(
                     CupertinoIcons.plus_circle,
                     color: Color(0xFF07575B),
@@ -367,8 +379,9 @@ class _ProductDetailsBottomSheetState extends State<ProductDetailsBottomSheet> {
           Expanded(
             child: ElevatedButton(
               onPressed: () {
-                if ((controller.cartItems[index] ?? 0) == 0) {
-                  controller.addToCart(index);
+                if ((controller.cartItems[id] ?? 0) == 0) {
+                  controller.registerProduct(widget.product);
+                  controller.addToCart(id);
                 }
                 Navigator.pop(context);
               },

@@ -44,26 +44,30 @@ class ToastHelper {
     required Color backgroundColor,
     required IconData icon,
   }) {
-    Get.snackbar(
-      title,
-      message,
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: backgroundColor,
-      colorText: Colors.white,
-      borderRadius: 16,
-      margin: const EdgeInsets.all(12),
-      duration: const Duration(seconds: 3),
-      icon: Icon(icon, color: Colors.white, size: 28),
-      boxShadows: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.1),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
-        ),
-      ],
-      shouldIconPulse: true,
-      dismissDirection: DismissDirection.horizontal,
-      leftBarIndicatorColor: Colors.white.withOpacity(0.3),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.context != null) {
+        Get.snackbar(
+          title,
+          message,
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: backgroundColor,
+          colorText: Colors.white,
+          borderRadius: 16,
+          margin: const EdgeInsets.all(12),
+          duration: const Duration(seconds: 3),
+          icon: Icon(icon, color: Colors.white, size: 28),
+          boxShadows: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          shouldIconPulse: true,
+          dismissDirection: DismissDirection.horizontal,
+          leftBarIndicatorColor: Colors.white.withOpacity(0.3),
+        );
+      }
+    });
   }
 }

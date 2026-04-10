@@ -16,4 +16,16 @@ class Coupon {
     required this.minOrderValue,
     this.maxDiscount = double.infinity,
   });
+
+  factory Coupon.fromMap(Map<String, dynamic> map) {
+    return Coupon(
+      code: map['code'] ?? '',
+      title: map['title'] ?? map['code'] ?? '',
+      description: map['description'] ?? '',
+      discountValue: double.tryParse(map['discount_value'].toString()) ?? 0.0,
+      isPercentage: map['is_percentage'] ?? true,
+      minOrderValue: double.tryParse(map['min_order_value'].toString()) ?? 0.0,
+      maxDiscount: double.tryParse(map['max_discount']?.toString() ?? '') ?? double.infinity,
+    );
+  }
 }

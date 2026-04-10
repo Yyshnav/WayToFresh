@@ -23,17 +23,27 @@ class SearchScreen extends GetWidget<SearchScreenController> {
         children: [
           _buildHeader(context),
           Expanded(
-            child: Obx(() {
-              if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
+            child: RefreshIndicator(
+              onRefresh: controller.refreshSearch,
+              color: const Color(0xFF07575B),
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              if (controller.searchResults.isEmpty) {
-                return _buildNoResults();
-              }
+                if (controller.searchResults.isEmpty) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      child: _buildNoResults(),
+                    ),
+                  );
+                }
 
-              return _buildSearchResultsGrid();
-            }),
+                return _buildSearchResultsGrid();
+              }),
+            ),
           ),
         ],
       ),
@@ -134,6 +144,7 @@ class SearchScreen extends GetWidget<SearchScreenController> {
     return Padding(
       padding: EdgeInsets.all(14.h),
       child: GridView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         itemCount: controller.searchResults.length,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,

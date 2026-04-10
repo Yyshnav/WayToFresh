@@ -28,6 +28,7 @@ import 'package:waytofresh/presentation/my_orders_screen/my_orders_screen.dart';
 import 'package:waytofresh/presentation/my_orders_screen/binding/my_orders_binding.dart';
 import 'package:waytofresh/presentation/gold_promotion_screen/gold_promotion_screen.dart';
 import 'package:waytofresh/presentation/gold_promotion_screen/binding/gold_promotion_binding.dart';
+import 'package:waytofresh/presentation/category_screen/category_products_screen.dart';
 
 class AppRoutes {
   static const String categoryScreen = '/category_screen';
@@ -48,6 +49,7 @@ class AppRoutes {
   static const String searchScreen = '/search_screen';
   static const String myOrdersScreen = '/my_orders_screen';
   static const String goldPromotionScreen = '/gold_promotion_screen';
+  static const String categoryProductsScreen = '/category_products_screen';
   static const String initialRoute = '/splash_screen';
 
   static List<GetPage> pages = [
@@ -148,6 +150,11 @@ class AppRoutes {
       page: () => const GoldPromotionScreen(),
       binding: GoldPromotionBinding(),
       transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: categoryProductsScreen,
+      page: () => const CategoryProductsScreen(),
+      transition: Transition.rightToLeftWithFade,
     ),
   ];
 }

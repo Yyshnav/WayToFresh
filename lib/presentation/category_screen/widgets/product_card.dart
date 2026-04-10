@@ -5,6 +5,8 @@ import '../controller/cart_controller.dart';
 import '../../homescreen/product_item_model.dart';
 import '../../../../Widgets/product_details_bottom_sheet.dart';
 import '../../../../Widgets/animate_fade_slide.dart';
+import '../../../../Widgets/custom_image_view.dart';
+import '../../../../core/utils/image_constants.dart';
 
 class ProductCard extends StatelessWidget {
   final Map<String, dynamic> product;
@@ -25,11 +27,13 @@ class ProductCard extends StatelessWidget {
         milliseconds: (productIndex % 6) * 100,
       ), // Staggered entry
       child: Obx(() {
-        bool isInCart = controller.cartItems.containsKey(productIndex);
-        int quantity = isInCart ? controller.cartItems[productIndex]! : 0;
+        final int productId = controller.getOrRegisterProduct(product);
+        bool isInCart = controller.cartItems.containsKey(productId);
+        int quantity = isInCart ? controller.cartItems[productId]! : 0;
 
         return GestureDetector(
           onTap: () {
+            controller.registerProduct(product); // Ensure cached
             Get.bottomSheet(
               ProductDetailsBottomSheet(
                 product: ProductItemModel.fromMap(product),
@@ -63,26 +67,11 @@ class ProductCard extends StatelessWidget {
                             topRight: Radius.circular(12),
                           ),
                         ),
-                        child: product["image"] != null
-                            ? Image.asset(
-                                product["image"],
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Center(
-                                      child: Icon(
-                                        CupertinoIcons.photo,
-                                        size: 32,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                              )
-                            : const Center(
-                                child: Icon(
-                                  CupertinoIcons.bag,
-                                  size: 32,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                        child: CustomImageView(
+                          imagePath: product["image"],
+                          fit: BoxFit.contain,
+                          placeHolder: ImageConstant.imgSearchinterfacesymbol1,
+                        ),
                       ),
                       // Time Badge
                       Positioned(
@@ -157,30 +146,36 @@ class ProductCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "₹${product["price"]}",
+                                "₹${double.parse(product["price"].toString()).toStringAsFixed(0)}",
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
                                 ),
+                                maxLines: 1,
                               ),
                               Text(
-                                "₹${(product["price"] * 1.2).toInt()}",
+                                "₹${double.parse((product["original_price"] ?? (double.parse(product["price"].toString()) * 1.2)).toString()).toStringAsFixed(0)}",
                                 style: TextStyle(
                                   fontSize: 11,
                                   decoration: TextDecoration.lineThrough,
                                   color: Colors.grey.shade400,
                                 ),
+                                maxLines: 1,
                               ),
                             ],
                           ),
+                          const SizedBox(width: 4),
 
                           if (!isInCart)
                             GestureDetector(
-                              onTap: () => controller.addToCart(productIndex),
+                                onTap: () {
+                                  controller.registerProduct(product);
+                                  controller.addToCart(productId);
+                                },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
+                                  horizontal: 16, // Reduced from 20
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
@@ -218,7 +213,7 @@ class ProductCard extends StatelessWidget {
                                 children: [
                                   GestureDetector(
                                     onTap: () =>
-                                        controller.removeFromCart(productIndex),
+                                        controller.removeFromCart(productId),
                                     child: const Icon(
                                       CupertinoIcons.minus,
                                       size: 16,
@@ -237,7 +232,7 @@ class ProductCard extends StatelessWidget {
                                   const SizedBox(width: 6), // Reduced from 8
                                   GestureDetector(
                                     onTap: () =>
-                                        controller.addToCart(productIndex),
+                                        controller.addToCart(productId),
                                     child: const Icon(
                                       CupertinoIcons.add,
                                       size: 16,

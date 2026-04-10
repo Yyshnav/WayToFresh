@@ -19,14 +19,19 @@ class GoldPromotionScreen extends GetView<GoldPromotionController> {
       backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
       appBar: _buildAppBar(context),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildGoldenHeader(context),
-            _buildCategoryFilters(context),
-            _buildFilterChips(context),
-            _buildRecommendedSection(context),
-          ],
+      body: RefreshIndicator(
+        onRefresh: controller.fetchGoldProducts,
+        color: const Color(0xFFFFD700), // Gold
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              _buildGoldenHeader(context),
+              _buildCategoryFilters(context),
+              _buildFilterChips(context),
+              _buildRecommendedSection(context),
+            ],
+          ),
         ),
       ),
     );

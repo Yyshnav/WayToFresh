@@ -61,6 +61,12 @@ class NotificationController extends GetxController {
     notifications.clear();
   }
 
+  Future<void> refreshNotifications() async {
+    // Simulate API fetch delay
+    await Future.delayed(const Duration(seconds: 1));
+    notifications.refresh();
+  }
+
   // ✅ Simulated triggers
   void notifyPaymentSuccess() => showStatusNotification("Payment Successful 💰", "We've received your payment. Thank you!", customIcon: Icons.payments_outlined);
   void notifyPaymentFailed() => showStatusNotification("Payment Failed ❌", "Your transaction didn't go through. Please try again.", isSuccess: false, customIcon: Icons.error_outline);

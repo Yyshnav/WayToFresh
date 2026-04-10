@@ -27,11 +27,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
     final CartController cartController = Get.find<CartController>();
     
-    // Find index for cart operations
-    int productIndex = cartController.allProducts.indexWhere(
-      (p) => p['name'] == product.title.value,
-    );
-    if (productIndex == -1) productIndex = 0; // Fallback
+    // Use stable ID for cart operations
+    final int productId = product.id.value;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -54,7 +51,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       SizedBox(height: 12.h),
 
                       // 3. Price and Quantity
-                      _buildPriceQuantity(cartController, productIndex, product),
+                      _buildPriceQuantity(cartController, productId, product),
                       SizedBox(height: 20.h),
 
                       // 4. Attributes (Size, Energy, Delivery)
@@ -81,10 +78,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
 
           // 7. Fixed Add to Cart Button
-          _buildAddToCartButton(context, cartController, productIndex),
+          _buildAddToCartButton(context, cartController, productId, product),
         ],
       ),
     );
+  }
+
+  final PageController _pageController = PageController();
+  final RxInt _currentPage = 0.obs;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   Widget _buildHeroImage(BuildContext context, ProductItemModel product) {
@@ -92,11 +98,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(24.h)),
-          child: CustomImageView(
-            imagePath: product.images[0],
+          child: Container(
             height: 250.h,
             width: double.infinity,
-            fit: BoxFit.cover,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+            ),
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: product.images.length,
+              onPageChanged: (index) => _currentPage.value = index,
+              itemBuilder: (context, index) {
+                return CustomImageView(
+                  imagePath: product.images[index],
+                  height: 250.h,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
           ),
         ),
         // Overlay for back button and favorite
@@ -126,16 +146,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           bottom: 20.h,
           left: 0,
           right: 0,
-          child: Row(
+          child: Obx(() => Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(width: 20.h, height: 4.h, decoration: BoxDecoration(color: const Color(0xFF800000), borderRadius: BorderRadius.circular(2))),
-              SizedBox(width: 5.h),
-              Container(width: 8.h, height: 4.h, decoration: BoxDecoration(color: Colors.white.withOpacity(0.5), borderRadius: BorderRadius.circular(2))),
-              SizedBox(width: 5.h),
-              Container(width: 8.h, height: 4.h, decoration: BoxDecoration(color: Colors.white.withOpacity(0.5), borderRadius: BorderRadius.circular(2))),
-            ],
-          ),
+            children: List.generate(
+              product.images.length,
+              (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: _currentPage.value == index ? 20.h : 8.h,
+                height: 4.h,
+                margin: EdgeInsets.symmetric(horizontal: 4.h),
+                decoration: BoxDecoration(
+                  color: _currentPage.value == index 
+                      ? const Color(0xFF800000) 
+                      : Colors.white.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+          )),
         ),
       ],
     );
@@ -228,17 +256,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _buildPriceQuantity(CartController cartController, int index, ProductItemModel product) {
+  Widget _buildPriceQuantity(CartController cartController, int productId, ProductItemModel product) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          "₹${product.price.value}.00",
-          style: TextStyle(
-            fontSize: 22.h,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF800000),
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "₹${product.price.value}.00",
+              style: TextStyle(
+                fontSize: 22.h,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF800000),
+              ),
+            ),
+            Obx(() => Text(
+              "₹${product.originalPrice.value}.00",
+              style: TextStyle(
+                decoration: TextDecoration.lineThrough,
+                color: Colors.grey,
+                fontSize: 14.h,
+              ),
+            )),
+          ],
         ),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 4.h, vertical: 4.h),
@@ -250,18 +291,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             children: [
               _buildStepperButton(
                 icon: CupertinoIcons.minus,
-                onTap: () => cartController.removeFromCart(index),
+                onTap: () => cartController.removeFromCart(productId),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 15.h),
                 child: Obx(() => Text(
-                  "${cartController.cartItems[index] ?? 1}",
+                  "${cartController.cartItems[productId] ?? 1}",
                   style: TextStyle(fontSize: 16.h, fontWeight: FontWeight.bold),
                 )),
               ),
               _buildStepperButton(
                 icon: CupertinoIcons.plus,
-                onTap: () => cartController.addToCart(index),
+                onTap: () => cartController.addToCart(productId),
               ),
             ],
           ),
@@ -442,7 +483,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _buildAddToCartButton(BuildContext context, CartController controller, int index) {
+  Widget _buildAddToCartButton(BuildContext context, CartController controller, int productId, ProductItemModel product) {
     return Positioned(
       bottom: 0,
       left: 0,
@@ -461,7 +502,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ),
         child: ElevatedButton(
           onPressed: () {
-            controller.addToCart(index);
+            controller.registerProduct(product);
+            controller.addToCart(productId);
             HapticFeedback.heavyImpact();
             Get.back();
           },

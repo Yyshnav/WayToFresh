@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../homescreen/product_item_model.dart';
-import '../../../core/utils/image_constants.dart';
+import 'package:waytofresh/core/network/dio_client.dart';
 
 class GoldPromotionController extends GetxController {
   RxBool isVegMode = false.obs;
   RxString selectedCategory = "All".obs;
   RxList<ProductItemModel> allProducts = <ProductItemModel>[].obs;
   RxList<ProductItemModel> filteredProducts = <ProductItemModel>[].obs;
+  RxBool isLoading = false.obs;
 
   final TextEditingController searchController = TextEditingController();
 
   void _applyFilters() {
-    filteredProducts.value = allProducts.where((product) {
+    filteredProducts.assignAll(allProducts.where((product) {
       // 1. Veg Mode Filtering
       if (isVegMode.value && !product.isVeg.value) return false;
 
@@ -32,13 +33,13 @@ class GoldPromotionController extends GetxController {
       }
 
       return true;
-    }).toList();
+    }).toList());
   }
 
   @override
   void onInit() {
     super.onInit();
-    _loadMockProducts();
+    fetchGoldProducts();
 
     // Wire up reactive filter triggers
     ever(isVegMode, (_) => _applyFilters());
@@ -47,6 +48,25 @@ class GoldPromotionController extends GetxController {
 
     // Search listener
     searchController.addListener(_applyFilters);
+  }
+
+  Future<void> fetchGoldProducts() async {
+    isLoading.value = true;
+    try {
+      final response = await DioClient().dio.get('products/', queryParameters: {
+        'is_gold_promotion': true,
+      });
+
+      if (response.statusCode == 200) {
+        final List results = response.data['results'] ?? [];
+        allProducts.assignAll(results.map((m) => ProductItemModel.fromMap(m)).toList());
+        _applyFilters();
+      }
+    } catch (e) {
+      debugPrint("Error fetching gold products: $e");
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   @override
@@ -61,104 +81,5 @@ class GoldPromotionController extends GetxController {
 
   void toggleVegMode(bool value) {
     isVegMode.value = value;
-  }
-
-  void _loadMockProducts() {
-    allProducts.addAll([
-      // WAGYU & PREMIUM
-      ProductItemModel(
-        title: "Premium Wagyu",
-        images: [ImageConstant.imgRawWagyu],
-        deliveryTime: "20 MINS",
-        price: 120,
-        isVeg: false,
-        filterCategoryName: "Specials",
-        description: "Highly marbled raw Wagyu beef, tender and flavorful.",
-        size: "1 kg",
-      ),
-      ProductItemModel(
-        title: "Beef Tenderloin",
-        images: [ImageConstant.imgRawTenderloin],
-        deliveryTime: "15 MINS",
-        price: 85,
-        isVeg: false,
-        filterCategoryName: "Beef",
-        description: "Lean and tender beef cut, perfect for steaks.",
-        size: "500 g",
-      ),
-      ProductItemModel(
-        title: "Beef Ribs",
-        images: [ImageConstant.imgRawRibs],
-        deliveryTime: "30 MINS",
-        price: 95,
-        isVeg: false,
-        filterCategoryName: "Beef",
-        description: "Prime beef short ribs, perfect for slow cooking.",
-        size: "1 kg",
-      ),
-      
-      // CHICKEN
-      ProductItemModel(
-        title: "Chicken Breast Boneless",
-        images: [ImageConstant.imgRawLamb], // using placeholder
-        deliveryTime: "15 MINS",
-        price: 45,
-        isVeg: false,
-        filterCategoryName: "Chicken",
-        description: "Lean and healthy chicken breast.",
-        size: "1 kg",
-      ),
-      ProductItemModel(
-        title: "Chicken Curry Cut",
-        images: [ImageConstant.imgRawLamb],
-        deliveryTime: "18 MINS",
-        price: 55,
-        isVeg: false,
-        filterCategoryName: "Chicken",
-        size: "500 g",
-      ),
-      
-      // LAMB & MUTTON
-      ProductItemModel(
-        title: "Lamb Chops",
-        images: [ImageConstant.imgRawLamb],
-        deliveryTime: "20 MINS",
-        price: 75,
-        isVeg: false,
-        filterCategoryName: "Lamb",
-        description: "Succulent raw lamb chops.",
-        size: "500 g",
-      ),
-      ProductItemModel(
-        title: "Lamb Leg",
-        images: [ImageConstant.imgRawLamb],
-        deliveryTime: "35 MINS",
-        price: 110,
-        isVeg: false,
-        filterCategoryName: "Lamb",
-        description: "Juicy and tender whole lamb leg.",
-        size: "2 kg",
-      ),
-      
-      // GROCERIES / MISC
-      ProductItemModel(
-        title: "Fresh Onions",
-        images: [ImageConstant.imgImage4650x50],
-        deliveryTime: "10 MINS",
-        price: 30,
-        isVeg: true,
-        filterCategoryName: "All",
-        unit: "Loose",
-      ),
-      ProductItemModel(
-        title: "Farm Fresh Tomatoes",
-        images: [ImageConstant.imgImage4660x60],
-        deliveryTime: "10 MINS",
-        price: 25,
-        isVeg: true,
-        filterCategoryName: "All",
-        unit: "Loose",
-      ),
-    ]);
   }
 }

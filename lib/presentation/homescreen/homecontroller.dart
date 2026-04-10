@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:waytofresh/core/utils/image_constants.dart';
 import 'package:waytofresh/presentation/category_screen/models/categoryitemmodel.dart';
 import 'package:waytofresh/presentation/homescreen/grocery_category_item_model.dart';
 import 'package:waytofresh/presentation/homescreen/home_model.dart';
 import 'package:waytofresh/presentation/homescreen/product_item_model.dart';
 import 'package:waytofresh/routes/app_routes.dart';
-import 'package:waytofresh/theme/theme_helper.dart';
+import 'package:waytofresh/core/network/dio_client.dart';
+import 'package:waytofresh/presentation/category_screen/controller/cart_controller.dart';
 
 class HomeController extends GetxController {
   late TextEditingController searchController;
@@ -30,7 +30,7 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     searchController = TextEditingController();
-    _initializeData();
+    initializeData();
   }
 
   @override
@@ -39,159 +39,70 @@ class HomeController extends GetxController {
     super.onClose();
   }
 
-  void _initializeData() {
-    // Initialize category items
-    categoryItems.value = [
-      CategoryItemModel(
-        title: "Lights, Diyas\n& Candles".obs,
-        imagePath: ImageConstant.imgImage50.obs,
-        imageHeight: 80.0.obs,
-        imageWidth: 80.0.obs,
-      ),
-      CategoryItemModel(
-        title: "Diwali\nGifts".obs,
-        imagePath: ImageConstant.imgImage51.obs,
-        imageHeight: 80.0.obs,
-        imageWidth: 80.0.obs,
-      ),
-      CategoryItemModel(
-        title: "Appliances\n& Gadgets".obs,
-        imagePath: ImageConstant.imgImage51.obs,
-        imageHeight: 80.0.obs,
-        imageWidth: 80.0.obs,
-      ),
-      CategoryItemModel(
-        title: "Home\n& Living".obs,
-        imagePath: ImageConstant.imgImage50.obs,
-        imageHeight: 80.0.obs,
-        imageWidth: 80.0.obs,
-      ),
-    ];
+  Future<void> initializeData() async {
+    try {
+      final response = await DioClient().dio.get('home/');
+      if (response.statusCode == 200) {
+        final data = response.data;
+        
+        // Parse Banners
+        if (data['banners'] != null) {
+          bannerImages.assignAll((data['banners'] as List)
+              .map((b) => b['image_url'].toString())
+              .toList());
+        }
 
-    // Initialize product items
-    productItems.value = [
-      ProductItemModel(
-        title: "Golden Glass \nWooden Lid Candle (Oudh)",
-        images: [ImageConstant.imgImage54, ImageConstant.imgImage55],
-        deliveryTime: "16 MINS",
-        price: 79,
-      ),
-      ProductItemModel(
-        title: "Royal Gulab Jamun \nBy Bikano",
-        images: [ImageConstant.imgImage57, ImageConstant.imgImage60],
-        deliveryTime: "16 MINS",
-        price: 79,
-      ),
-      ProductItemModel(
-        title: "Bikaji Bhujia",
-        images: [ImageConstant.imgImage54, ImageConstant.imgImage55],
-        deliveryTime: "16 MINS",
-        price: 79,
-      ),
-    ];
+        // Parse Categories
+        if (data['categories'] != null) {
+          categoryItems.assignAll((data['categories'] as List).map((c) {
+            return CategoryItemModel(
+              id: c['id'],
+              title: (c['name'] ?? '').toString().obs,
+              imagePath: (c['image_url'] ?? '').toString().obs,
+              imageHeight: 80.0.obs,
+              imageWidth: 80.0.obs,
+            );
+          }).toList());
+        }
 
-    // Initialize grocery categories
-    groceryCategories.value = [
-      GroceryCategoryItemModel(
-        title: "Vegetables &\nFruits",
-        image: ImageConstant.imgImage46,
-        imageHeight: 84.0,
-        imageWidth: 60.0,
-      ),
-      GroceryCategoryItemModel(
-        title: "Atta, Dal &\nRice",
-        image: ImageConstant.imgImage4650x60,
-        imageHeight: 50.0,
-        imageWidth: 60.0,
-      ),
-      GroceryCategoryItemModel(
-        title: "Oil, Ghee &\nMasala",
-        image: ImageConstant.imgImage4660x60,
-        imageHeight: 60.0,
-        imageWidth: 60.0,
-      ),
-      GroceryCategoryItemModel(
-        title: "Dairy, Bread &\nMilk",
-        image: ImageConstant.imgImage4630x60,
-        imageHeight: 30.0,
-        imageWidth: 60.0,
-      ),
-      GroceryCategoryItemModel(
-        title: "Biscuits &\nBakery",
-        image: ImageConstant.imgImage4650x50,
-        imageHeight: 50.0,
-        imageWidth: 50.0,
-      ),
-    ];
+        // Parse Daily Essentials
+        if (data['daily_essentials'] != null) {
+          dailyEssentials.assignAll((data['daily_essentials'] as List)
+              .map((p) => ProductItemModel.fromMap(p))
+              .toList());
+        }
 
-    // Mock Data for New Sections
-    dailyEssentials.value = [
-      ProductItemModel(
-        title: "Farm Fresh Milk",
-        images: [ImageConstant.milk1, ImageConstant.milk2],
-        deliveryTime: "10 MINS",
-        price: 32,
-        category: 3, // Dairy
-      ),
-      ProductItemModel(
-        title: "Brown Bread",
-        images: [ImageConstant.milk2, ImageConstant.milk3],
-        deliveryTime: "12 MINS",
-        price: 45,
-        category: 3, // Dairy
-      ),
-      ProductItemModel(
-        title: "Free Range Eggs",
-        images: [ImageConstant.milk3, ImageConstant.milk1],
-        deliveryTime: "15 MINS",
-        price: 89,
-        category: 3, // Dairy
-      ),
-      ProductItemModel(
-        title: "Salted Butter",
-        images: [ImageConstant.milk1, ImageConstant.milk2],
-        deliveryTime: "8 MINS",
-        price: 56,
-        category: 3, // Dairy
-      ),
-    ];
+        // Parse Trending Products
+        if (data['trending_products'] != null) {
+          trendingProducts.assignAll((data['trending_products'] as List)
+              .map((p) => ProductItemModel.fromMap(p))
+              .toList());
+        }
 
-    trendingProducts.value = [
-      ProductItemModel(
-        title: "Spicy Lays",
-        images: [ImageConstant.lays, ImageConstant.kurukure],
-        deliveryTime: "8 MINS",
-        price: 20,
-        category: 1, // Chips
-      ),
-      ProductItemModel(
-        title: "Kurkure Masala",
-        images: [ImageConstant.kurukure, ImageConstant.lays],
-        deliveryTime: "8 MINS",
-        price: 20,
-        category: 1, // Chips
-      ),
-      ProductItemModel(
-        title: "Coca Cola",
-        images: [ImageConstant.coke, ImageConstant.lays],
-        deliveryTime: "10 MINS",
-        price: 40,
-        category: 4, // Drinks
-      ),
-      ProductItemModel(
-        title: "Dairy Milk Silk",
-        images: [ImageConstant.diarymilk, ImageConstant.lays],
-        deliveryTime: "5 MINS",
-        price: 80,
-        category: 5, // Sweets
-      ),
-    ];
+        // Parse Gold Promotions into productItems
+        if (data['gold_promotions'] != null) {
+          productItems.assignAll((data['gold_promotions'] as List)
+              .map((p) => ProductItemModel.fromMap(p))
+              .toList());
+        }
 
-    bannerImages.value = [
-      ImageConstant.imgImage55, // Placeholder banners
-      ImageConstant.imgImage60,
-      ImageConstant.imgImage55,
-    ];
+        // If none of the sections have products (e.g. admin added but forgot flags),
+        // fallback to fetching ALL active products
+        if (dailyEssentials.isEmpty && trendingProducts.isEmpty) {
+          try {
+            final allResp = await DioClient().dio.get('products/');
+            if (allResp.statusCode == 200) {
+              final results = allResp.data['results'] as List? ?? allResp.data as List? ?? [];
+              dailyEssentials.assignAll(results.map((p) => ProductItemModel.fromMap(p)).toList());
+            }
+          } catch (_) {}
+        }
+      }
+    } catch (e) {
+      if (e is num) {
+        // Fallback or handle error
+      }
+    }
   }
 
   void onSearchChanged(String value) {
@@ -204,13 +115,20 @@ class HomeController extends GetxController {
   }
 
   void onProductAddTap(ProductItemModel product) {
-    Get.snackbar(
-      'Product Added',
-      '${product.title.value} added to cart',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: appTheme.green_600,
-      colorText: appTheme.whiteCustom,
-    );
+    try {
+      final cartController = Get.find<CartController>();
+      cartController.addToCart(product.id.value);
+      
+      Get.snackbar(
+        'Product Added',
+        '${product.title.value} added to cart',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      debugPrint("Error adding to cart from home: $e");
+    }
   }
 
   void onGroceryCategoryTap(GroceryCategoryItemModel category) {

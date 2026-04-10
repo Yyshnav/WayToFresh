@@ -16,7 +16,7 @@ class CategoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool isSelected = controller.selectedIndex.value == index;
+      bool isSelected = controller.selectedIndex == index;
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
@@ -64,7 +64,9 @@ class CategoryItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    controller.categories[index],
+                    controller.categories.isNotEmpty 
+                        ? controller.categories[index]
+                        : "",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 12,

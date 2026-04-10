@@ -35,9 +35,6 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
   Widget _buildContent(BuildContext context) {
     final cartController = Get.find<CartController>();
 
-    // Match or Register product dynamically
-    final int productIndex = cartController.getOrRegisterProduct(widget.product);
-
     return GestureDetector(
       onTap: () {
         Get.bottomSheet(
@@ -89,7 +86,10 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
                     bottom: 4.h,
                     right: 4.h,
                     child: Obx(() {
-                      int qty = cartController.cartItems[productIndex] ?? 0;
+                      // Use stable ID for cart state
+                      final int productId = widget.product.id.value;
+                      int qty = cartController.cartItems[productId] ?? 0;
+                      
                       return AnimatedSwitcher(
                         duration: const Duration(milliseconds: 200),
                         transitionBuilder: (child, animation) =>
@@ -98,7 +98,8 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
                             ? GestureDetector(
                                 key: const ValueKey('add_button'),
                                 onTap: () {
-                                  cartController.addToCart(productIndex);
+                                  cartController.registerProduct(widget.product);
+                                  cartController.addToCart(productId);
                                 },
                                 child: Container(
                                   height: 22.h,
@@ -148,7 +149,7 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
                                     GestureDetector(
                                       onTap: () {
                                         cartController.removeFromCart(
-                                          productIndex,
+                                          productId,
                                         );
                                       },
                                       child: Icon(
@@ -169,7 +170,7 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
                                     ),
                                     GestureDetector(
                                       onTap: () {
-                                        cartController.addToCart(productIndex);
+                                        cartController.addToCart(productId);
                                       },
                                       child: Icon(
                                         CupertinoIcons.add,
@@ -231,11 +232,27 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
                   width: 12.h,
                 ),
                 SizedBox(width: 4.h),
-                Text(
-                  '₹${widget.product.price.value}',
-                  style: TextStyleHelper.instance.body15BoldPoppins.copyWith(
-                    fontSize: 13.fSize,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '₹${widget.product.price.value}',
+                      style: TextStyleHelper.instance.body15BoldPoppins.copyWith(
+                        fontSize: 13.fSize,
+                        height: 1.1,
+                      ),
+                    ),
+                    Obx(() => Text(
+                      '₹${widget.product.originalPrice.value}',
+                      style: TextStyleHelper.instance.label8BoldInter.copyWith(
+                        decoration: TextDecoration.lineThrough,
+                        color: appTheme.gray_500,
+                        fontSize: 9.fSize,
+                        fontWeight: FontWeight.normal,
+                        height: 1.0,
+                      ),
+                    )),
+                  ],
                 ),
               ],
             ),

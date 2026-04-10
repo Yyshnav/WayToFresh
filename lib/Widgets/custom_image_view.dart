@@ -41,9 +41,7 @@ class CustomImageView extends StatelessWidget {
     this.cacheWidth,
     this.cacheHeight,
   }) {
-    if (imagePath == null || imagePath!.isEmpty) {
-      imagePath = ImageConstant.imgImageNotFound;
-    }
+    // Keep imagePath null or empty if it's missing, don't force a missing asset file
   }
 
   ///[imagePath] is required parameter for showing image
@@ -110,14 +108,11 @@ class CustomImageView extends StatelessWidget {
   }
 
   Widget _buildImageView() {
-    if (imagePath == null || imagePath!.isEmpty) {
-      return Image.asset(
-        placeHolder ?? ImageConstant.imgImageNotFound,
+    if (imagePath == null || imagePath!.isEmpty || imagePath == ImageConstant.imgImageNotFound) {
+      return SizedBox(
         height: height,
         width: width,
-        fit: fit ?? BoxFit.cover,
-        cacheWidth: cacheWidth,
-        cacheHeight: cacheHeight,
+        child: Icon(Icons.image_not_supported, color: Colors.grey[400], size: (height != null && height!.isFinite ? height! : 50) * 0.5),
       );
     }
 
@@ -179,13 +174,10 @@ class CustomImageView extends StatelessWidget {
               backgroundColor: appTheme.grey100,
             ),
           ),
-          errorWidget: (context, url, error) => Image.asset(
-            placeHolder ?? ImageConstant.imgImageNotFound,
+          errorWidget: (context, url, error) => SizedBox(
             height: height,
             width: width,
-            fit: fit ?? BoxFit.cover,
-            cacheWidth: cacheWidth,
-            cacheHeight: cacheHeight,
+            child: Icon(Icons.image_not_supported, color: Colors.grey[400], size: (height != null && height!.isFinite ? height! : 50) * 0.5),
           ),
         );
       case ImageType.png:

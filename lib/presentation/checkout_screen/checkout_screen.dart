@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:waytofresh/presentation/order_tracking_screen/controller/order_tracking_controller.dart';
+import 'package:waytofresh/presentation/order_tracking_screen/order_tracking_screen.dart';
 import '../category_screen/controller/cart_controller.dart';
 import 'controller/address_controller.dart';
 import 'widgets/address_bottom_sheet.dart';
 import '../coupon_screen/coupon_screen.dart';
 import 'controller/coupon_controller.dart';
-import 'package:waytofresh/presentation/order_tracking_screen/order_tracking_screen.dart';
-import 'package:waytofresh/presentation/order_tracking_screen/controller/order_tracking_controller.dart';
+import 'controller/order_controller.dart';
+import '../order_success_screen/order_success_screen.dart';
 import 'package:waytofresh/core/utils/toast_helper.dart';
+import 'package:waytofresh/core/app_expote.dart';
+import 'package:waytofresh/widgets/custom_image_view.dart';
 import 'package:waytofresh/core/controllers/notification_controller.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -25,6 +29,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   AnimationController? _lottieController;
 
   late final CouponController _couponController;
+  late final OrderController _orderController;
   Worker? _confettiWorker;
 
   @override
@@ -32,8 +37,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     super.initState();
     _lottieController = AnimationController(vsync: this);
     _couponController = Get.put(CouponController());
-
-    // Listen to confetti trigger - MOVED to navigation return logic
+    _orderController = Get.put(OrderController());
   }
 
   @override
@@ -93,11 +97,15 @@ class _CheckoutScreenState extends State<CheckoutScreen>
           body: Column(
             children: [
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                child: RefreshIndicator(
+                  onRefresh: controller.fetchCart,
+                  color: const Color(0xFF07575B),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                       // Personal Cart Header
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -138,20 +146,31 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                         padding: const EdgeInsets.all(16),
                         child: Obx(
                           () => Column(
-                            children: controller.cartItems.entries.map((entry) {
-                              final product = controller.allProducts[entry.key];
-                              final quantity = entry.value;
-                              // Check if it's the last item to remove separator/bottom margin
-                              final isLast =
-                                  entry.key == controller.cartItems.keys.last;
-                              return _buildCartItem(
-                                controller,
-                                entry.key,
-                                product,
-                                quantity,
-                                isLast,
-                              );
-                            }).toList(),
+                            children: [
+                              ...controller.cartItems.entries.toList().asMap().entries.map((itemEntry) {
+                                final index = itemEntry.key;
+                                final entry = itemEntry.value;
+                                final productId = entry.key;
+                                final quantity = entry.value;
+
+                                // Find product in current list or cache
+                                final product = controller.allProducts.firstWhereOrNull((p) => p["id"] == productId) ?? 
+                                               controller.cachedProducts[productId];
+
+                                if (product == null) return const SizedBox.shrink();
+
+                                // Check if it's the last item
+                                final isLast = index == controller.cartItems.length - 1;
+                                
+                                return _buildCartItem(
+                                  controller,
+                                  productId,
+                                  product,
+                                  quantity,
+                                  isLast,
+                                );
+                              }).toList(),
+                            ],
                           ),
                         ),
                       ),
@@ -250,7 +269,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                         null) {
                                       return IconButton(
                                         onPressed: () =>
-                                            _couponController.removeCoupon(),
+                                            _couponController.removeCoupon(context),
                                         icon: const Icon(
                                           CupertinoIcons.xmark,
                                           color: Colors.grey,
@@ -374,109 +393,49 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                                   ),
                                   const SizedBox(height: 12),
 
-                                  // Handling Charge
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        CupertinoIcons.bag,
-                                        size: 16,
-                                        color: Colors.grey,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Text(
-                                        "Handling charge",
-                                        style: TextStyle(fontSize: 13),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Icon(
-                                        CupertinoIcons.info,
-                                        size: 14,
-                                        color: Colors.grey.shade400,
-                                      ),
-                                      const Spacer(),
-                                      const Text(
-                                        "₹2",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-
-                                  // Gift Wrapping
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        CupertinoIcons.gift,
-                                        size: 16,
-                                        color: Colors.grey,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Text(
-                                        "Gift wrapping",
-                                        style: TextStyle(fontSize: 13),
-                                      ),
-                                      const Spacer(),
-                                      const Text(
-                                        "₹35",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-
                                   // Coupon Discount Row
                                   Obx(() {
-                                    if (_couponController.discountAmount.value >
-                                        0) {
-                                      return Row(
-                                        children: [
-                                          const Icon(
-                                            CupertinoIcons.percent,
-                                            size: 16,
-                                            color: Colors.green,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          const Text(
-                                            "Coupon Discount",
-                                            style: TextStyle(
-                                              fontSize: 13,
+                                    if (_couponController.discountAmount.value > 0) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(bottom: 12),
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              CupertinoIcons.percent,
+                                              size: 16,
                                               color: Colors.green,
                                             ),
-                                          ),
-                                          const Spacer(),
-                                          Text(
-                                            "- ₹${_couponController.discountAmount.value.toStringAsFixed(0)}",
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 13,
-                                              color: Colors.green,
+                                            const SizedBox(width: 8),
+                                            const Text(
+                                              "Coupon Discount",
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.green,
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                            const Spacer(),
+                                            Text(
+                                              "- ₹${_couponController.discountAmount.value.toStringAsFixed(0)}",
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 13,
+                                                color: Colors.green,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       );
                                     }
                                     return const SizedBox.shrink();
                                   }),
 
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 4),
 
                                   Obx(() {
-                                    double discount =
-                                        _couponController.discountAmount.value;
-                                    double grandTotal =
-                                        controller.totalCartPrice +
-                                        2 +
-                                        35 -
-                                        discount;
+                                    final discount = _couponController.discountAmount.value;
+                                    final grandTotal = controller.totalCartPrice - discount;
                                     return Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         const Text(
                                           "Grand total",
@@ -499,123 +458,38 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                               ),
                             ),
 
-                            // Blue Savings Footer
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.blue.shade50,
-                                borderRadius: const BorderRadius.vertical(
-                                  bottom: Radius.circular(16),
+                            // Savings Footer (only shown when coupon is applied)
+                            Obx(() {
+                              final savings = _couponController.discountAmount.value;
+                              if (savings <= 0) return const SizedBox.shrink();
+                              return Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
                                 ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Your total savings",
-                                          style: TextStyle(
-                                            color: Colors.blue,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                        Text(
-                                          "Includes ₹15 savings through free delivery",
-                                          style: TextStyle(
-                                            color: Colors.blue,
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade50,
+                                  borderRadius: const BorderRadius.vertical(
+                                    bottom: Radius.circular(16),
                                   ),
-                                  Obx(() {
-                                    // Total savings: Delivery fee (15) + Coupon Discount
-                                    double totalSavings =
-                                        15 +
-                                        _couponController.discountAmount.value;
-                                    return Text(
-                                      "₹${totalSavings.toStringAsFixed(0)}",
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(CupertinoIcons.tag_fill, color: Colors.green, size: 16),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      "You saved ₹${savings.toStringAsFixed(0)} on this order! 🎉",
                                       style: const TextStyle(
-                                        color: Colors.blue,
+                                        color: Colors.green,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 13,
+                                        fontSize: 12,
                                       ),
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Feeding India Donation
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 24),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.orange.shade50,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(
-                                CupertinoIcons.heart_fill,
-                                color: Colors.orange,
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Feeding India donation",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
                                     ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    "Working towards a malnutrition free India. Feeding India...read more",
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              "₹1",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(
-                              CupertinoIcons.square,
-                              color: Colors.green,
-                            ),
+                                  ],
+                                ),
+                              );
+                            }),
                           ],
                         ),
                       ),
@@ -655,7 +529,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                   ),
                 ),
               ),
-            ],
+            ),
+          ],
           ),
           bottomNavigationBar: _buildBottomBar(context, controller),
         ),
@@ -680,7 +555,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
 
   Widget _buildCartItem(
     CartController controller,
-    int index,
+    int productId,
     dynamic product,
     int quantity,
     bool isLast,
@@ -696,13 +571,12 @@ class _CheckoutScreenState extends State<CheckoutScreen>
               color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Image.asset(
-              product["imagePath"] ?? "assets/images/image 21.png",
+            child: CustomImageView(
+              imagePath: product["image"] ?? product["imagePath"],
               width: 50,
               height: 50,
               fit: BoxFit.contain,
-              errorBuilder:
-                  (_, __, ___) => const Icon(CupertinoIcons.bag),
+              placeHolder: "assets/images/image 21.png",
             ),
           ),
           const SizedBox(width: 12),
@@ -750,7 +624,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 child: Row(
                   children: [
                     GestureDetector(
-                      onTap: () => controller.removeFromCart(index),
+                      onTap: () => controller.removeFromCart(productId),
                       child: const Icon(
                         CupertinoIcons.minus,
                         color: Colors.white,
@@ -768,7 +642,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
-                      onTap: () => controller.addToCart(index),
+                      onTap: () => controller.addToCart(productId),
                       child: const Icon(
                         CupertinoIcons.add,
                         color: Colors.white,
@@ -933,27 +807,40 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 // Place Order Button (Right - Expanded)
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      // ✅ Start Real-time Tracking Simulation
-                      final trackingController = Get.find<OrderTrackingController>();
-                      trackingController.startTracking();
-
-                      // ✅ Trigger Notifications
-                      final notif = Get.find<NotificationController>();
-                      notif.notifyPaymentSuccess();
-                      notif.notifyOrderPlaced();
+                    onPressed: _orderController.isPlacingOrder.value ? null : () async {
+                      final double total = controller.totalCartPrice;
+                      final String? couponCode = _couponController.appliedCoupon.value?.code;
+                      final addressController = Get.find<AddressController>();
                       
-                      // Place order logic
-                      ToastHelper.showSuccess("Order Placed Successfully!");
+                      final success = await _orderController.placeOrder(
+                        orderTotal: total,
+                        addressId: addressController.selectedAddressId.value,
+                        couponCode: couponCode,
+                        paymentMethod: 'cod', // Defaulting to COD for now
+                      );
 
-                      // Optionally clear cart
-                      final cartController = Get.find<CartController>();
-                      cartController.clearCart();
+                      if (success) {
+                        // ✅ Start Real-time Tracking Simulation
+                        final trackingController = Get.find<OrderTrackingController>();
+                        trackingController.startTracking();
 
-                      // Navigate to Tracking Screen
-                      Future.delayed(const Duration(seconds: 1), () {
-                        Get.to(() => const OrderTrackingScreen());
-                      });
+                        // ✅ Trigger Notifications
+                        final notif = Get.find<NotificationController>();
+                        notif.notifyPaymentSuccess();
+                        notif.notifyOrderPlaced();
+                        
+                        ToastHelper.showSuccess("Order Placed Successfully!");
+
+                        // Optionally clear cart
+                        controller.clearCart();
+
+                        // Navigate to Tracking Screen
+                        Future.delayed(const Duration(milliseconds: 500), () {
+                          Get.to(() => OrderTrackingScreen());
+                        });
+                      } else {
+                        ToastHelper.showError("Failed to place order. Please try again.");
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
@@ -975,11 +862,9 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Obx(() {
-                              // Match the bill calculation: items + handling(2) + giftwrap(35) - coupon
+                              // items total - coupon discount (delivery is FREE)
                               double finalPrice =
-                                  controller.totalCartPrice +
-                                  2 +
-                                  35 -
+                                  controller.totalCartPrice -
                                   _couponController.discountAmount.value;
                               return Text(
                                 "₹${finalPrice.toStringAsFixed(0)}",

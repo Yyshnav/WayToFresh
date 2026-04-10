@@ -15,19 +15,30 @@ class NotificationScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
       appBar: _buildAppBar(context),
-      body: Obx(() {
-        if (controller.notifications.isEmpty) {
-          return _buildEmptyState();
-        }
-        return ListView.builder(
-          padding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 12.h),
-          itemCount: controller.notifications.length,
-          itemBuilder: (context, index) {
-            final notification = controller.notifications[index];
-            return _buildNotificationCard(notification);
-          },
-        );
-      }),
+      body: RefreshIndicator(
+        onRefresh: controller.refreshNotifications,
+        color: const Color(0xFF07575B),
+        child: Obx(() {
+          if (controller.notifications.isEmpty) {
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.7,
+                child: _buildEmptyState(),
+              ),
+            );
+          }
+          return ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 12.h),
+            itemCount: controller.notifications.length,
+            itemBuilder: (context, index) {
+              final notification = controller.notifications[index];
+              return _buildNotificationCard(notification);
+            },
+          );
+        }),
+      ),
     );
   }
 

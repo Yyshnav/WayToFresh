@@ -65,7 +65,7 @@ class ConnectivityController extends GetxController {
 
   // ✅ Retry Logic
   Future<void> retryConnection() async {
-    Get.snackbar("Connecting...", "Attempting to reconnect...", snackPosition: SnackPosition.BOTTOM);
+    ToastHelper.showInfo("Attempting to reconnect...", title: "Connecting");
     await Future.delayed(const Duration(seconds: 1));
     _checkInitialStatus();
   }

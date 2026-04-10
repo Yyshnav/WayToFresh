@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
@@ -8,6 +9,8 @@ import 'package:waytofresh/Widgets/product_item_widget.dart';
 import 'package:waytofresh/core/app_expote.dart';
 import 'package:waytofresh/core/utils/image_constants.dart';
 import 'package:waytofresh/presentation/homescreen/homecontroller.dart';
+import 'package:waytofresh/presentation/homescreen/widgets/active_order_banner.dart';
+import 'package:waytofresh/presentation/checkout_screen/controller/order_controller.dart';
 import 'package:waytofresh/presentation/homescreen/product_item_model.dart';
 import '../../widgets/custom_blinkit_app_bar.dart';
 import '../../widgets/custom_image_view.dart';
@@ -49,6 +52,12 @@ class _HomeInitialPageState extends State<HomeInitialPage> {
   bool isLoading = true; // ✅ State held in State class for simple UI toggles here
   bool isLoadingMore = false; // Pagination state
   int _paginationCount = 0; // Limit pagination to 2 loads
+
+  // ✅ Banner Carousel State
+  final PageController _bannerPageController = PageController();
+  final RxInt _currentBannerIndex = 0.obs;
+  Timer? _bannerAutoScrollTimer;
+  int _lastBannerCount = 0;
 
   @override
   void initState() {
@@ -137,15 +146,39 @@ class _HomeInitialPageState extends State<HomeInitialPage> {
   @override
   void dispose() {
     widget.scrollController.removeListener(_scrollListener);
+    _bannerAutoScrollTimer?.cancel();
+    _bannerPageController.dispose();
     super.dispose();
+  }
+
+  void _manageBannerAutoScroll(int count) {
+    if (count == _lastBannerCount) return;
+    _lastBannerCount = count;
+    
+    _bannerAutoScrollTimer?.cancel();
+    if (count > 1) {
+      _bannerAutoScrollTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+        if (_bannerPageController.hasClients) {
+          int nextRow = (_currentBannerIndex.value + 1) % count;
+          _bannerPageController.animateToPage(
+            nextRow,
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    }
   }
 
   Future<void> _onRefresh() async {
     setState(() {
       isLoading = true;
     });
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 2));
+    // Trigger actual data fetch instead of mocking
+    try {
+      await controller.initializeData();
+    } catch (_) {}
+    
     if (mounted) {
       setState(() {
         isLoading = false;
@@ -342,8 +375,8 @@ class _HomeInitialPageState extends State<HomeInitialPage> {
               ),
             ],
           ),
-          // Floating Cart Button
-          _buildFloatingCartButton(),
+          // Bottom Banner Area (Cart & Ongoing Orders)
+          _buildBottomBannerArea(),
         ],
       ),
     );
@@ -352,108 +385,172 @@ class _HomeInitialPageState extends State<HomeInitialPage> {
 
 
 
-  Widget _buildFloatingCartButton() {
+  Widget _buildBottomBannerArea() {
     final CartController cartController = Get.find<CartController>();
+    final OrderController orderController = Get.find<OrderController>();
+
     return Positioned(
       bottom: 90,
-      left: 70, // Increased margin for smaller width
-      right: 70,
+      left: 0,
+      right: 0,
       child: Obx(() {
-        if (cartController.totalCartItems == 0) return const SizedBox.shrink();
+        final List<Widget> banners = [];
 
-        return GestureDetector(
-          onTap: () {
-            Get.toNamed(AppRoutes.checkoutScreen);
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2E7D32), // Green
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+        // 1. View Cart Banner
+        if (cartController.totalCartItems > 0) {
+          banners.add(_buildCartBanner(cartController));
+        }
+
+        // 2. Active Order Banner
+        if (orderController.activeOrder.value != null) {
+          banners.add(ActiveOrderBanner(order: orderController.activeOrder.value!));
+        }
+
+        if (banners.isEmpty) {
+          _manageBannerAutoScroll(0);
+          return const SizedBox.shrink();
+        }
+
+        if (banners.length == 1) {
+          _manageBannerAutoScroll(1);
+          return banners[0];
+        }
+
+        // Manage auto-scroll for multiple banners
+        _manageBannerAutoScroll(banners.length);
+
+        // 3. Carousel View (PageView)
+        return SizedBox(
+          height: 80.h,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: PageView(
+                  controller: _bannerPageController,
+                  onPageChanged: (index) => _currentBannerIndex.value = index,
+                  children: banners,
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                // Item Icon Circle (Now with Product Image Stack)
-                Obx(() {
-                  final items = cartController.cartItems.keys.toList();
-                  final displayItems = items.take(3).toList();
-                  
-                  return SizedBox(
-                    width: 32 + (displayItems.length > 1 ? (displayItems.length - 1) * 12.0 : 0),
-                    height: 32,
-                    child: Stack(
-                      children: List.generate(displayItems.length, (index) {
-                        int productIndex = displayItems[index];
-                        String imagePath = "";
-                        if (productIndex >= 0 && productIndex < cartController.allProducts.length) {
-                          imagePath = cartController.allProducts[productIndex]['image'] ?? "";
-                        }
-
-                        return Positioned(
-                          left: index * 12.0,
-                          child: Container(
-                            padding: const EdgeInsets.all(2),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: ClipOval(
-                              child: CustomImageView(
-                                imagePath: imagePath.isNotEmpty ? imagePath : ImageConstant.imgSearchinterfacesymbol1,
-                                height: 26,
-                                width: 26,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
+              ),
+              SizedBox(height: 6.h),
+              Obx(() => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(banners.length, (index) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: EdgeInsets.symmetric(horizontal: 3.h),
+                    width: _currentBannerIndex.value == index ? 10.h : 5.h,
+                    height: 2.5.h,
+                    decoration: BoxDecoration(
+                      color: _currentBannerIndex.value == index ? const Color(0xFF2E7D32) : Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(1.25.h),
                     ),
                   );
                 }),
-                const SizedBox(width: 8),
-
-                // Text Info
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "View cart",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                    Text(
-                      "${cartController.totalCartItems} ITEM",
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                const Icon(
-                  CupertinoIcons.chevron_right,
-                  color: Colors.white,
-                  size: 14,
-                ),
-              ],
-            ),
+              )),
+            ],
           ),
         );
       }),
+    );
+  }
+
+    Widget _buildCartBanner(CartController cartController) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 60.h), // Restored to 60.h for compact look
+      child: GestureDetector(
+        onTap: () {
+          Get.toNamed(AppRoutes.checkoutScreen);
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8), // Reduced from 16 to match active order banner
+          decoration: BoxDecoration(
+            color: const Color(0xFF2E7D32), // Green
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // Item Icon Circle
+              Obx(() {
+                final items = cartController.cartItems.keys.toList();
+                final displayItems = items.take(3).toList();
+                
+                return SizedBox(
+                  width: 32 + (displayItems.length > 1 ? (displayItems.length - 1) * 12.0 : 0),
+                  height: 32,
+                  child: Stack(
+                    children: List.generate(displayItems.length, (index) {
+                      int productId = displayItems[index];
+                      String imagePath = "";
+                      var prod = cartController.allProducts.firstWhereOrNull((p) => p["id"] == productId) ?? 
+                                 cartController.cachedProducts[productId];
+                      if (prod != null) imagePath = prod['image'] ?? "";
+
+                      return Positioned(
+                        left: index * 12.0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: ClipOval(
+                            child: CustomImageView(
+                              imagePath: imagePath.isNotEmpty ? imagePath : ImageConstant.imgSearchinterfacesymbol1,
+                              height: 26,
+                              width: 26,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                );
+              }),
+              const SizedBox(width: 8),
+
+              // Text Info
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "View cart",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                  Text(
+                    "${cartController.totalCartItems} ITEM",
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              const Icon(
+                CupertinoIcons.chevron_right,
+                color: Colors.white,
+                size: 14,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -652,25 +749,21 @@ class _HomeInitialPageState extends State<HomeInitialPage> {
                   splashColor: appTheme.teal_200.withOpacity(0.5),
                   highlightColor: appTheme.teal_100.withOpacity(0.3),
                   onTap: () {
-                    // Determine index based on category title
-                    int index = 0;
-                    String title = category.title.value.toLowerCase();
-                    if (title.contains("vegetables"))
-                      index = 0;
-                    else if (title.contains("chips"))
-                      index = 1;
-                    else if (title.contains("bakery"))
-                      index = 2;
-                    else if (title.contains("dairy") || title.contains("diary"))
-                      index = 3;
-                    else if (title.contains("drinks"))
-                      index = 4;
-                    else if (title.contains("sweets"))
-                      index = 5;
-                    else
-                      index = 0; // Default
+                    final cartController = Get.find<CartController>();
+                    
+                    // ✅ Dynamic Lookup: Find the index in CartController that matches this title
+                    int targetIndex = cartController.categories.indexWhere(
+                      (name) => name.toLowerCase().contains(category.title.value.split('&')[0].trim().toLowerCase()) || 
+                                category.title.value.toLowerCase().contains(name.toLowerCase())
+                    );
 
-                    Get.toNamed(AppRoutes.categoryScreen, arguments: index);
+                    // Fallback to if not found (likely because it's after All Products etc)
+                    if (targetIndex == -1) targetIndex = 1; // Default to first actual category
+
+                    Get.toNamed(
+                      AppRoutes.categoryScreen,
+                      arguments: targetIndex,
+                    );
                   },
                   child: CategoryItemWidget(category: category),
                 ),
@@ -782,19 +875,16 @@ class _HomeInitialPageState extends State<HomeInitialPage> {
                     final imageGridHeight = constraints.maxHeight * 0.55;
                     return GestureDetector(
                       onTap: () {
-                        int targetIndex = 0;
-                        if (cat.title.contains("Vegetables"))
-                          targetIndex = 0;
-                        else if (cat.title.contains("Chips"))
-                          targetIndex = 1;
-                        else if (cat.title.contains("Bakery"))
-                          targetIndex = 2;
-                        else if (cat.title.contains("Dairy"))
-                          targetIndex = 3;
-                        else if (cat.title.contains("Drinks"))
-                          targetIndex = 4;
-                        else if (cat.title.contains("Sweets"))
-                          targetIndex = 5;
+                        final cartController = Get.find<CartController>();
+                        
+                        // ✅ Dynamic Lookup: Find the index in CartController that matches this title
+                        int targetIndex = cartController.categories.indexWhere(
+                          (name) => name.toLowerCase().contains(cat.title.split('&')[0].trim().toLowerCase()) || 
+                                    cat.title.toLowerCase().contains(name.toLowerCase())
+                        );
+
+                        // Fallback to 0 if not found
+                        if (targetIndex == -1) targetIndex = 0;
 
                         Get.toNamed(
                           AppRoutes.categoryScreen,

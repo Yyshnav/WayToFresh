@@ -29,7 +29,10 @@ class CategoryAppBar extends StatelessWidget {
           Expanded(
             child: Obx(
               () => Text(
-                controller.categories[controller.selectedIndex.value],
+                (controller.categories.isNotEmpty && 
+                 controller.selectedIndex.value < controller.categories.length)
+                  ? controller.categories[controller.selectedIndex.value]
+                  : "Category",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
